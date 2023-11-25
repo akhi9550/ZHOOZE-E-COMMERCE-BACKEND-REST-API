@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	services"Zhooze/pkg/usecase"
+	services "Zhooze/pkg/usecase/interface"
 	"Zhooze/pkg/utils/response"
 	"strconv"
 
@@ -10,37 +10,39 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ImageHandler struct {
-	ImageUseCase services.ImageUseCase
+type PaymentHandler struct {
+	PaymentUseCase services.PaymentUseCase
+	OrderUseCase   services.OrderUseCase
 }
 
-func NewCouponHandler(useCase services.ImageUseCase) *ImageHandler {
-	return &ImageHandler{
-		ImageUseCase: useCase,
+func NeWPaymentHandler(useCase services.PaymentUseCase, orderUsecase services.OrderUseCase) *PaymentHandler {
+	return &PaymentHandler{
+		PaymentUseCase: useCase,
+		OrderUseCase:   orderUsecase,
 	}
 }
 
-func MakePaymentRazorPay(c *gin.Context) {
+func (py *PaymentHandler) MakePaymentRazorPay(c *gin.Context) {
 	orderID, err := strconv.Atoi(c.Query("order_id"))
 	if err != nil {
 		errs := response.ClientResponse(http.StatusInternalServerError, "error from orderID", nil, err.Error())
 		c.JSON(http.StatusInternalServerError, errs)
 		return
 	}
-	paymentMethodID, err := usecase.PaymentMethodID(orderID)
+	paymentMethodID, err := py.OrderUseCase.PaymentMethodID(orderID)
 	if err != nil {
 		err := response.ClientResponse(http.StatusInternalServerError, "error from paymentId ", nil, err.Error())
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
 	if paymentMethodID == 2 {
-		payment, _ := usecase.PaymentAlreadyPaid(orderID)
+		payment, _ := py.PaymentUseCase.PaymentAlreadyPaid(orderID)
 		if payment {
 			c.HTML(http.StatusOK, "pay.html", nil)
 			return
 
 		}
-		orderDetail, razorID, err := usecase.MakePaymentRazorPay(orderID)
+		orderDetail, razorID, err := py.PaymentUseCase.MakePaymentRazorPay(orderID)
 		if err != nil {
 			errs := response.ClientResponse(http.StatusInternalServerError, "could not generate order details", nil, err.Error())
 			c.JSON(http.StatusInternalServerError, errs)
@@ -56,7 +58,7 @@ func MakePaymentRazorPay(c *gin.Context) {
 	}
 	c.HTML(http.StatusNotFound, "notfound.html", nil)
 }
-func VerifyPayment(c *gin.Context) {
+func (py *PaymentHandler) VerifyPayment(c *gin.Context) {
 	orderID, err := strconv.Atoi(c.Query("order_id"))
 	if err != nil {
 		errs := response.ClientResponse(http.StatusInternalServerError, "error from orderID", nil, err.Error())
@@ -64,7 +66,7 @@ func VerifyPayment(c *gin.Context) {
 		return
 	}
 	paymentID := c.Query("payment_id")
-	err = usecase.SavePaymentDetails(orderID, paymentID)
+	err = py.PaymentUseCase.SavePaymentDetails(orderID, paymentID)
 	if err != nil {
 		errs := response.ClientResponse(http.StatusInternalServerError, "could not update payment details", nil, err.Error())
 		c.JSON(http.StatusInternalServerError, errs)

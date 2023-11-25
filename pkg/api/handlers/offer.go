@@ -1,8 +1,7 @@
 package handlers
 
 import (
-	"Zhooze/pkg/usecase"
-	services "Zhooze/pkg/usecase"
+	services "Zhooze/pkg/usecase/interface"
 	"Zhooze/pkg/utils/models"
 	"Zhooze/pkg/utils/response"
 	"net/http"
@@ -12,13 +11,13 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-type ImageHandler struct {
-	ImageUseCase services.ImageUseCase
+type OfferHandler struct {
+	OfferUseCase services.OfferUseCase
 }
 
-func NewCouponHandler(useCase services.ImageUseCase) *ImageHandler {
-	return &ImageHandler{
-		ImageUseCase: useCase,
+func NewOfferHandler(useCase services.OfferUseCase) *OfferHandler {
+	return &OfferHandler{
+		OfferUseCase: useCase,
 	}
 }
 
@@ -32,7 +31,7 @@ func NewCouponHandler(useCase services.ImageUseCase) *ImageHandler {
 // @Success 200 {object} response.Response{}
 // @Failure 500 {object} response.Response{}
 // @Router /admin/offer/product-offer [POST]
-func AddProdcutOffer(c *gin.Context) {
+func (of *OfferHandler) AddProdcutOffer(c *gin.Context) {
 
 	var productOffer models.ProductOfferReceiver
 
@@ -47,7 +46,7 @@ func AddProdcutOffer(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, errorRes)
 		return
 	}
-	err = usecase.AddProductOffer(productOffer)
+	err = of.OfferUseCase.AddProductOffer(productOffer)
 
 	if err != nil {
 		errRes := response.ClientResponse(http.StatusInternalServerError, "could not add offer", nil, err.Error())
@@ -69,9 +68,9 @@ func AddProdcutOffer(c *gin.Context) {
 // @Success 200 {object} response.Response{}
 // @Failure 500 {object} response.Response{}
 // @Router /admin/offer/product-offer [GET]
-func GetProductOffer(c *gin.Context) {
+func (of *OfferHandler) GetProductOffer(c *gin.Context) {
 
-	categories, err := usecase.GetOffers()
+	categories, err := of.OfferUseCase.GetOffers()
 	if err != nil {
 		errorRes := response.ClientResponse(http.StatusBadRequest, "fields provided are in wrong format", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errorRes)
@@ -93,7 +92,7 @@ func GetProductOffer(c *gin.Context) {
 // @Success 200 {object} response.Response{}
 // @Failure 500 {object} response.Response{}
 // @Router /admin/offer/product-offer   [DELETE]
-func ExpireProductOffer(c *gin.Context) {
+func (of *OfferHandler) ExpireProductOffer(c *gin.Context) {
 	id, err := strconv.Atoi(c.Query("id"))
 	if err != nil {
 		errorRes := response.ClientResponse(http.StatusBadRequest, "fields provided are in wrong format", nil, err.Error())
@@ -101,7 +100,7 @@ func ExpireProductOffer(c *gin.Context) {
 		return
 	}
 
-	if err := usecase.MakeOfferExpire(id); err != nil {
+	if err := of.OfferUseCase.MakeOfferExpire(id); err != nil {
 		errorRes := response.ClientResponse(http.StatusBadRequest, "Coupon cannot be made invalid", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errorRes)
 		return
@@ -122,7 +121,7 @@ func ExpireProductOffer(c *gin.Context) {
 // @Success 200 {object} response.Response{}
 // @Failure 500 {object} response.Response{}
 // @Router /admin/offer/category-offer [POST]
-func AddCategoryOffer(c *gin.Context) {
+func (of *OfferHandler) AddCategoryOffer(c *gin.Context) {
 
 	var categoryOffer models.CategoryOfferReceiver
 
@@ -137,7 +136,7 @@ func AddCategoryOffer(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, errorRes)
 		return
 	}
-	err = usecase.AddCategoryOffer(categoryOffer)
+	err = of.OfferUseCase.AddCategoryOffer(categoryOffer)
 
 	if err != nil {
 		errRes := response.ClientResponse(http.StatusInternalServerError, "could not add offer", nil, err.Error())
@@ -159,9 +158,9 @@ func AddCategoryOffer(c *gin.Context) {
 // @Success 200 {object} response.Response{}
 // @Failure 500 {object} response.Response{}
 // @Router /admin/offer/category-offer [GET]
-func GetCategoryOffer(c *gin.Context) {
+func (of *OfferHandler) GetCategoryOffer(c *gin.Context) {
 
-	categories, err := usecase.GetCategoryOffer()
+	categories, err := of.OfferUseCase.GetCategoryOffer()
 	if err != nil {
 		errorRes := response.ClientResponse(http.StatusBadRequest, "fields provided are in wrong format", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errorRes)
@@ -183,7 +182,7 @@ func GetCategoryOffer(c *gin.Context) {
 // @Success 200 {object} response.Response{}
 // @Failure 500 {object} response.Response{}
 // @Router /admin/offer/category-offer   [DELETE]
-func ExpireCategoryOffer(c *gin.Context) {
+func (of *OfferHandler) ExpireCategoryOffer(c *gin.Context) {
 	id, err := strconv.Atoi(c.Query("id"))
 	if err != nil {
 		errorRes := response.ClientResponse(http.StatusBadRequest, "fields provided are in wrong format", nil, err.Error())
@@ -191,7 +190,7 @@ func ExpireCategoryOffer(c *gin.Context) {
 		return
 	}
 
-	if err := usecase.ExpireCategoryOffer(id); err != nil {
+	if err := of.OfferUseCase.ExpireCategoryOffer(id); err != nil {
 		errorRes := response.ClientResponse(http.StatusBadRequest, "Coupon cannot be made invalid", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errorRes)
 		return

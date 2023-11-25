@@ -1,8 +1,7 @@
 package handlers
 
 import (
-	"Zhooze/pkg/usecase"
-	services "Zhooze/pkg/usecase"
+	services "Zhooze/pkg/usecase/interface"
 	"Zhooze/pkg/utils/models"
 	"Zhooze/pkg/utils/response"
 	"net/http"
@@ -12,13 +11,13 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-type ImageHandler struct {
-	ImageUseCase services.ImageUseCase
+type ProductHandler struct {
+	ProductUseCase services.ProductUseCase
 }
 
-func NewCouponHandler(useCase services.ImageUseCase) *ImageHandler {
-	return &ImageHandler{
-		ImageUseCase: useCase,
+func NewProductHandler(useCase services.ProductUseCase) *ProductHandler {
+	return &ProductHandler{
+		ProductUseCase: useCase,
 	}
 }
 
@@ -32,7 +31,7 @@ func NewCouponHandler(useCase services.ImageUseCase) *ImageHandler {
 // @Success 200 {object} response.Response{}
 // @Failure 500 {object} response.Response{}
 // @Router /user/products     [GET]
-func ShowAllProducts(c *gin.Context) {
+func (pt *ProductHandler) ShowAllProducts(c *gin.Context) {
 	pageStr := c.DefaultQuery("page", "1")
 	page, err := strconv.Atoi(pageStr)
 	if err != nil {
@@ -47,7 +46,7 @@ func ShowAllProducts(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, errorRes)
 		return
 	}
-	products, err := usecase.ShowAllProducts(page, count)
+	products, err := pt.ProductUseCase.ShowAllProducts(page, count)
 	if err != nil {
 		errs := response.ClientResponse(http.StatusInternalServerError, "Couldn't retrieve products", nil, err.Error())
 		c.JSON(http.StatusInternalServerError, errs)
@@ -66,14 +65,14 @@ func ShowAllProducts(c *gin.Context) {
 // @Success 200 {object} response.Response{}
 // @Failure 500 {object} response.Response{}
 // @Router /user/products/filter [POST]
-func FilterCategory(c *gin.Context) {
+func (pt *ProductHandler) FilterCategory(c *gin.Context) {
 	var data map[string]int
 	if err := c.ShouldBindJSON(&data); err != nil {
 		errs := response.ClientResponse(http.StatusBadRequest, "Fields provided are in wrong format", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errs)
 		return
 	}
-	productCategory, err := usecase.FilterCategory(data)
+	productCategory, err := pt.ProductUseCase.FilterCategory(data)
 	if err != nil {
 		errs := response.ClientResponse(http.StatusInternalServerError, "Couldn't retrieve products by category", nil, err.Error())
 		c.JSON(http.StatusInternalServerError, errs)
@@ -82,26 +81,6 @@ func FilterCategory(c *gin.Context) {
 	success := response.ClientResponse(http.StatusOK, "Successfully filtered the category", productCategory, nil)
 	c.JSON(http.StatusOK, success)
 }
-
-// // @Summary Get Products Details to users
-// // @Description Retrieve all product Details with pagination to users
-// // @Tags User Product
-// // @Accept json
-// // @Produce json
-// // @Success 200 {object} response.Response{}
-// // @Failure 500 {object} response.Response{}
-// // @Router /products   [GET]
-// func AllProducts(c *gin.Context) {
-// 	products, err := usecase.SeeAllProducts()
-// 	if err != nil {
-// 		errs := response.ClientResponse(http.StatusInternalServerError, "Couldn't retrieve products", nil, err.Error())
-// 		c.JSON(http.StatusInternalServerError, errs)
-// 		return
-// 	}
-// 	success := response.ClientResponse(http.StatusOK, "Successfully Retrieved all products", products, nil)
-// 	c.JSON(http.StatusOK, success)
-
-// }
 
 // @Summary Get Products Details
 // @Description Retrieve all product Details
@@ -114,7 +93,7 @@ func FilterCategory(c *gin.Context) {
 // @Success 200 {object} response.Response{}
 // @Failure 500 {object} response.Response{}
 // @Router /admin/products   [GET]
-func ShowAllProductsFromAdmin(c *gin.Context) {
+func (pt *ProductHandler) ShowAllProductsFromAdmin(c *gin.Context) {
 	pageStr := c.DefaultQuery("page", "1")
 	page, err := strconv.Atoi(pageStr)
 	if err != nil {
@@ -129,7 +108,7 @@ func ShowAllProductsFromAdmin(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, errs)
 		return
 	}
-	products, err := usecase.ShowAllProductsFromAdmin(page, count)
+	products, err := pt.ProductUseCase.ShowAllProductsFromAdmin(page, count)
 	if err != nil {
 		errs := response.ClientResponse(http.StatusInternalServerError, "Couldn't retrieve products", nil, err.Error())
 		c.JSON(http.StatusInternalServerError, errs)
@@ -149,7 +128,7 @@ func ShowAllProductsFromAdmin(c *gin.Context) {
 // @Success 200 {object} response.Response{}
 // @Failure 500 {object} response.Response{}
 // @Router /admin/products [POST]
-func AddProducts(c *gin.Context) {
+func (pt *ProductHandler) AddProducts(c *gin.Context) {
 	var product models.Product
 	if err := c.ShouldBindJSON(&product); err != nil {
 		errs := response.ClientResponse(http.StatusBadRequest, "Fields provided are in wrong format", nil, err.Error())
@@ -167,7 +146,7 @@ func AddProducts(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, errs)
 		return
 	}
-	products, err := usecase.AddProducts(product)
+	products, err := pt.ProductUseCase.AddProducts(product)
 	if err != nil {
 		errs := response.ClientResponse(http.StatusInternalServerError, "Could not add the product", nil, err.Error())
 		c.JSON(http.StatusInternalServerError, errs)
@@ -188,9 +167,9 @@ func AddProducts(c *gin.Context) {
 // @Success 200 {object} response.Response{}
 // @Failure 500 {object} response.Response{}
 // @Router /admin/products    [DELETE]
-func DeleteProducts(c *gin.Context) {
+func (pt *ProductHandler) DeleteProducts(c *gin.Context) {
 	id := c.Query("id")
-	err := usecase.DeleteProducts(id)
+	err := pt.ProductUseCase.DeleteProducts(id)
 	if err != nil {
 		errs := response.ClientResponse(http.StatusBadRequest, "Could not delete the specified products", nil, err.Error())
 		c.JSON(http.StatusInternalServerError, errs)
@@ -210,7 +189,7 @@ func DeleteProducts(c *gin.Context) {
 // @Success 200 {object} response.Response{}
 // @Failure 500 {object} response.Response{}
 // @Router /admin/products    [PUT]
-func UpdateProduct(c *gin.Context) {
+func (pt *ProductHandler) UpdateProduct(c *gin.Context) {
 	var p models.ProductUpdate
 	if err := c.BindJSON(&p); err != nil {
 		errorRes := response.ClientResponse(http.StatusBadRequest, "Fields provided are in wrong format", nil, err.Error())
@@ -218,7 +197,7 @@ func UpdateProduct(c *gin.Context) {
 		return
 	}
 
-	a, err := usecase.UpdateProduct(p.ProductId, p.Stock)
+	a, err := pt.ProductUseCase.UpdateProduct(p.ProductId, p.Stock)
 	if err != nil {
 		errorRes := response.ClientResponse(http.StatusBadRequest, "Could not update the product quantity", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errorRes)
@@ -241,7 +220,7 @@ func UpdateProduct(c *gin.Context) {
 // @Success 200 {object} response.Response{}
 // @Failure 500 {object} response.Response{}
 // @Router /admin/products/upload-image 	[POST]
-func UploadImage(c *gin.Context) {
+func (pt *ProductHandler) UploadImage(c *gin.Context) {
 	id, err := strconv.Atoi(c.Query("product_id"))
 	if err != nil {
 		errorRes := response.ClientResponse(http.StatusBadRequest, "Parameter problem", nil, err.Error())
@@ -256,7 +235,7 @@ func UploadImage(c *gin.Context) {
 		return
 	}
 
-	err = usecase.UpdateProductImage(id, file)
+	err = pt.ProductUseCase.UpdateProductImage(id, file)
 	if err != nil {
 		errorRes := response.ClientResponse(http.StatusBadRequest, "Could not change the image", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errorRes)
@@ -277,7 +256,7 @@ func UploadImage(c *gin.Context) {
 // @Success 200 {object} response.Response{}
 // @Failure 500 {object} response.Response{}
 // @Router /user/products/image  [GET]
-func ShowImages(c *gin.Context) {
+func (pt *ProductHandler) ShowImages(c *gin.Context) {
 	product_id := c.Query("product_id")
 	productID, err := strconv.Atoi(product_id)
 	if err != nil {
@@ -285,7 +264,7 @@ func ShowImages(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errs)
 		return
 	}
-	image, err := usecase.ShowImages(productID)
+	image, err := pt.ProductUseCase.ShowImages(productID)
 	if err != nil {
 		errs := response.ClientResponse(http.StatusBadGateway, "could not retrive images", nil, err.Error())
 		c.JSON(http.StatusBadGateway, errs)

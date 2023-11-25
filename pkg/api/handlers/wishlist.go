@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	services"Zhooze/pkg/usecase"
+	services "Zhooze/pkg/usecase/interface"
 	"Zhooze/pkg/utils/response"
 	"net/http"
 	"strconv"
@@ -9,13 +9,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ImageHandler struct {
-	ImageUseCase services.ImageUseCase
+type WishListHandler struct {
+	WishListUsecase services.WishListUseCase
 }
 
-func NewCouponHandler(useCase services.ImageUseCase) *ImageHandler {
-	return &ImageHandler{
-		ImageUseCase: useCase,
+func NewWishListHandler(useCase services.WishListUseCase) *WishListHandler {
+	return &WishListHandler{
+		WishListUsecase: useCase,
 	}
 }
 
@@ -28,9 +28,9 @@ func NewCouponHandler(useCase services.ImageUseCase) *ImageHandler {
 // @Success 200 {object} response.Response{}
 // @Failure 500 {object} response.Response{}
 // @Router /user/wishlist [GET]
-func GetWishList(c *gin.Context) {
+func (wl *WishListHandler) GetWishList(c *gin.Context) {
 	userID, _ := c.Get("user_id")
-	wishList, err := usecase.GetWishList(userID.(int))
+	wishList, err := wl.WishListUsecase.GetWishList(userID.(int))
 	if err != nil {
 		errs := response.ClientResponse(http.StatusInternalServerError, "failed to retrieve wishlist detailss", nil, err.Error())
 		c.JSON(http.StatusInternalServerError, errs)
@@ -50,7 +50,7 @@ func GetWishList(c *gin.Context) {
 // @Success 200 {object} response.Response{}
 // @Failure 500 {object} response.Response{}
 // @Router /user/wishlist [POST]
-func AddToWishlist(c *gin.Context) {
+func (wl *WishListHandler) AddToWishlist(c *gin.Context) {
 	userID, _ := c.Get("user_id")
 	product_id := c.Query("product_id")
 	productID, err := strconv.Atoi(product_id)
@@ -59,7 +59,7 @@ func AddToWishlist(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errs)
 		return
 	}
-	err = usecase.AddToWishlist(userID.(int), productID)
+	err = wl.WishListUsecase.AddToWishlist(userID.(int), productID)
 	if err != nil {
 		errs := response.ClientResponse(http.StatusInternalServerError, "failed to item to the wishlist", nil, err.Error())
 		c.JSON(http.StatusInternalServerError, errs)
@@ -79,7 +79,7 @@ func AddToWishlist(c *gin.Context) {
 // @Success 200 {object} response.Response{}
 // @Failure 500 {object} response.Response{}
 // @Router /user/wishlist [DELETE]
-func RemoveFromWishlist(c *gin.Context) {
+func (wl *WishListHandler) RemoveFromWishlist(c *gin.Context) {
 	userID, _ := c.Get("user_id")
 	product_id := c.Query("id")
 	productID, err := strconv.Atoi(product_id)
@@ -88,7 +88,7 @@ func RemoveFromWishlist(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, errs)
 		return
 	}
-	err = usecase.RemoveFromWishlist(productID, userID.(int))
+	err = wl.WishListUsecase.RemoveFromWishlist(productID, userID.(int))
 	if err != nil {
 		errs := response.ClientResponse(http.StatusInternalServerError, "failed to remove item from wishlist", nil, err.Error())
 		c.JSON(http.StatusInternalServerError, errs)

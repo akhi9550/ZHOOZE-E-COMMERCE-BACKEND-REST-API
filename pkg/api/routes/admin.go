@@ -5,75 +5,73 @@ import (
 	"Zhooze/pkg/api/middleware"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
-func AdminRoutes(r *gin.RouterGroup, db *gorm.DB) *gin.RouterGroup {
+func AdminRoutes(r *gin.RouterGroup, adminHandler *handlers.AdminHandler, productHandler *handlers.ProductHandler, orderHandler *handlers.OrderHandler, couponHandler *handlers.CouponHandler, categoryHandler *handlers.CategoryHandler, offerHandler *handlers.OfferHandler) {
 
-	r.POST("/adminlogin", handlers.LoginHandler)
+	r.POST("/adminlogin", adminHandler.LoginHandler)
 
 	r.Use(middleware.AdminAuthMiddleware())
 	{
 
-		r.GET("/dashboard", handlers.DashBoard)
-		r.GET("/sales-report", handlers.FilteredSalesReport)
-		r.GET("/sales-report-date", handlers.SalesReportByDate)
+		r.GET("/dashboard", adminHandler.DashBoard)
+		r.GET("/sales-report", adminHandler.FilteredSalesReport)
+		r.GET("/sales-report-date", adminHandler.SalesReportByDate)
 
 		users := r.Group("/users")
 		{
-			users.GET("", handlers.GetUsers)
-			users.PUT("/block", handlers.BlockUser)
-			users.PUT("/unblock", handlers.UnBlockUser)
+			users.GET("", adminHandler.GetUsers)
+			users.PUT("/block", adminHandler.BlockUser)
+			users.PUT("/unblock", adminHandler.UnBlockUser)
 		}
 
 		products := r.Group("/products")
 		{
-			products.GET("", handlers.ShowAllProductsFromAdmin)
-			products.POST("", handlers.AddProducts)
-			products.PUT("", handlers.UpdateProduct) //update the product quantity
-			products.DELETE("", handlers.DeleteProducts)
-			products.POST("/upload-image", handlers.UploadImage)
+			products.GET("", productHandler.ShowAllProductsFromAdmin)
+			products.POST("", productHandler.AddProducts)
+			products.PUT("", productHandler.UpdateProduct) //update the product quantity
+			products.DELETE("", productHandler.DeleteProducts)
+			products.POST("/upload-image", productHandler.UploadImage)
 		}
 
 		category := r.Group("/category")
 		{
-			category.GET("", handlers.GetCategory)
-			category.POST("", handlers.AddCategory)
-			category.PUT("", handlers.UpdateCategory)
-			category.DELETE("", handlers.DeleteCategory)
+			category.GET("", categoryHandler.GetCategory)
+			category.POST("", categoryHandler.AddCategory)
+			category.PUT("", categoryHandler.UpdateCategory)
+			category.DELETE("", categoryHandler.DeleteCategory)
 
 		}
 
 		order := r.Group("/order")
 		{
-			order.GET("", handlers.GetAllOrderDetailsForAdmin)
-			order.GET("/approve", handlers.ApproveOrder)
-			order.GET("/cancel", handlers.CancelOrderFromAdmin)
+			order.GET("", orderHandler.GetAllOrderDetailsForAdmin)
+			order.GET("/approve", orderHandler.ApproveOrder)
+			order.GET("/cancel", orderHandler.CancelOrderFromAdmin)
 		}
 
 		payment := r.Group("/payment-method")
 		{
-			payment.POST("", handlers.AddPaymentMethod)
-			payment.GET("", handlers.ListPaymentMethods)
-			payment.DELETE("", handlers.DeletePaymentMethod)
+			payment.POST("", adminHandler.AddPaymentMethod)
+			payment.GET("", adminHandler.ListPaymentMethods)
+			payment.DELETE("", adminHandler.DeletePaymentMethod)
 		}
 		coupons := r.Group("/coupons")
 		{
-			coupons.POST("", handlers.AddCoupon)
-			coupons.GET("", handlers.GetCoupon)
-			coupons.PATCH("", handlers.ExpireCoupon)
+			coupons.POST("", couponHandler.AddCoupon)
+			coupons.GET("", couponHandler.GetCoupon)
+			coupons.PATCH("", couponHandler.ExpireCoupon)
 		}
 		offer := r.Group("/offer")
 		{
-			offer.POST("/product-offer", handlers.AddProdcutOffer)
-			offer.GET("/product-offer",handlers.GetProductOffer)
-			offer.DELETE("/product-offer",handlers.ExpireProductOffer)
+			offer.POST("/product-offer", offerHandler.AddProdcutOffer)
+			offer.GET("/product-offer", offerHandler.GetProductOffer)
+			offer.DELETE("/product-offer", offerHandler.ExpireProductOffer)
 
-			offer.POST("/category-offer", handlers.AddCategoryOffer)
-			offer.GET("/category-offer",handlers.GetCategoryOffer)
-			offer.DELETE("/category-offer",handlers.ExpireCategoryOffer)
+			offer.POST("/category-offer", offerHandler.AddCategoryOffer)
+			offer.GET("/category-offer", offerHandler.GetCategoryOffer)
+			offer.DELETE("/category-offer", offerHandler.ExpireCategoryOffer)
 		}
 
 	}
-	return r
 }

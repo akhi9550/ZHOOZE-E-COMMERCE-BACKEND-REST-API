@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	services"Zhooze/pkg/usecase"
+	services "Zhooze/pkg/usecase/interface"
 	"Zhooze/pkg/utils/models"
 	"Zhooze/pkg/utils/response"
 	"errors"
@@ -32,7 +32,7 @@ func NewCouponHandler(useCase services.CouponUseCase) *CouponHandler {
 // @Success 200 {object} response.Response{}
 // @Failure 500 {object} response.Response{}
 // @Router /admin/coupons [POST]
-func AddCoupon(c *gin.Context) {
+func (cn *CouponHandler) AddCoupon(c *gin.Context) {
 
 	var coupon models.AddCoupon
 
@@ -48,7 +48,7 @@ func AddCoupon(c *gin.Context) {
 		return
 	}
 
-	message, err := usecase.AddCoupon(coupon)
+	message, err := cn.couponUseCase.AddCoupon(coupon)
 
 	if err != nil {
 		errorRes := response.ClientResponse(http.StatusInternalServerError, "Could not add coupon", nil, err.Error())
@@ -70,9 +70,9 @@ func AddCoupon(c *gin.Context) {
 // @Success 200 {object} response.Response{}
 // @Failure 500 {object} response.Response{}
 // @Router /admin/coupons [get]
-func GetCoupon(c *gin.Context) {
+func (cn *CouponHandler) GetCoupon(c *gin.Context) {
 
-	coupons, err := usecase.GetCoupon()
+	coupons, err := cn.couponUseCase.GetCoupon()
 
 	if err != nil {
 		errorRes := response.ClientResponse(http.StatusInternalServerError, "Could not get coupon details", nil, err.Error())
@@ -95,7 +95,7 @@ func GetCoupon(c *gin.Context) {
 // @Success 200 {object} response.Response{}
 // @Failure 500 {object} response.Response{}
 // @Router /admin/coupons   [PATCH]
-func ExpireCoupon(c *gin.Context) {
+func (cn *CouponHandler) ExpireCoupon(c *gin.Context) {
 
 	id := c.Query("coupon_id")
 	couponID, err := strconv.Atoi(id)
@@ -106,7 +106,7 @@ func ExpireCoupon(c *gin.Context) {
 		return
 	}
 
-	err = usecase.ExpireCoupon(couponID)
+	err = cn.couponUseCase.ExpireCoupon(couponID)
 	if err != nil {
 		if errors.Is(err, errors.New("the offer already exists")) {
 			errorRes := response.ClientResponse(http.StatusForbidden, "could not expire coupon", nil, err.Error())
@@ -133,7 +133,7 @@ func ExpireCoupon(c *gin.Context) {
 // @Success 200 {object} response.Response{}
 // @Failure 500 {object} response.Response{}
 // @Router /user/coupon/apply [POST]
-func ApplyCoupon(c *gin.Context) {
+func (cn *CouponHandler) ApplyCoupon(c *gin.Context) {
 
 	userID, _ := c.Get("user_id")
 	var couponDetails models.CouponAddUser
@@ -144,7 +144,7 @@ func ApplyCoupon(c *gin.Context) {
 		return
 	}
 
-	err := usecase.ApplyCoupon(couponDetails.CouponName, userID.(int))
+	err := cn.couponUseCase.ApplyCoupon(couponDetails.CouponName, userID.(int))
 
 	if err != nil {
 		errorRes := response.ClientResponse(http.StatusInternalServerError, "coupon could not be added", nil, err.Error())

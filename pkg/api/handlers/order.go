@@ -1,8 +1,7 @@
 package handlers
 
 import (
-	"Zhooze/pkg/usecase"
-	services "Zhooze/pkg/usecase"
+	services "Zhooze/pkg/usecase/interface"
 	"Zhooze/pkg/utils/models"
 	"Zhooze/pkg/utils/response"
 	"net/http"
@@ -11,13 +10,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ImageHandler struct {
-	ImageUseCase services.ImageUseCase
+type OrderHandler struct {
+	orderUseCase services.OrderUseCase
 }
 
-func NewCouponHandler(useCase services.ImageUseCase) *ImageHandler {
-	return &ImageHandler{
-		ImageUseCase: useCase,
+func NewOrderHandler(useCase services.OrderUseCase) *OrderHandler {
+	return &OrderHandler{
+		orderUseCase: useCase,
 	}
 }
 
@@ -31,14 +30,14 @@ func NewCouponHandler(useCase services.ImageUseCase) *ImageHandler {
 // @Success 200 {object} response.Response{}
 // @Failure 500 {object} response.Response{}
 // @Router /admin/order/approve [GET]
-func ApproveOrder(c *gin.Context) {
+func (or *OrderHandler) ApproveOrder(c *gin.Context) {
 	orderId, err := strconv.Atoi(c.Query("order_id"))
 	if err != nil {
 		errs := response.ClientResponse(http.StatusInternalServerError, "error from orderID", nil, err.Error())
 		c.JSON(http.StatusInternalServerError, errs)
 		return
 	}
-	err = usecase.ApproveOrder(orderId)
+	err = or.orderUseCase.ApproveOrder(orderId)
 	if err != nil {
 		errs := response.ClientResponse(http.StatusInternalServerError, "Couldn't approve the order", nil, err.Error())
 		c.JSON(http.StatusInternalServerError, errs)
@@ -58,14 +57,14 @@ func ApproveOrder(c *gin.Context) {
 // @Success 200 {object} response.Response{}
 // @Failure 500 {object} response.Response{}
 // @Router /admin/order/cancel   [GET]
-func CancelOrderFromAdmin(c *gin.Context) {
+func (or *OrderHandler) CancelOrderFromAdmin(c *gin.Context) {
 	order_id, err := strconv.Atoi(c.Query("order_id"))
 	if err != nil {
 		errs := response.ClientResponse(http.StatusInternalServerError, "error from orderID", nil, err.Error())
 		c.JSON(http.StatusInternalServerError, errs)
 		return
 	}
-	err = usecase.CancelOrderFromAdmin(order_id)
+	err = or.orderUseCase.CancelOrderFromAdmin(order_id)
 	if err != nil {
 		errs := response.ClientResponse(http.StatusInternalServerError, "Couldn't cancel the order", nil, err.Error())
 		c.JSON(http.StatusInternalServerError, errs)
@@ -86,7 +85,7 @@ func CancelOrderFromAdmin(c *gin.Context) {
 // @Success 200 {object} response.Response{}
 // @Failure 500 {object} response.Response{}
 // @Router /admin/order   [GET]
-func GetAllOrderDetailsForAdmin(c *gin.Context) {
+func (or *OrderHandler) GetAllOrderDetailsForAdmin(c *gin.Context) {
 	pageStr := c.DefaultQuery("page", "1")
 	page, err := strconv.Atoi(pageStr)
 	if err != nil {
@@ -101,7 +100,7 @@ func GetAllOrderDetailsForAdmin(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, errs)
 		return
 	}
-	allOrderDetails, err := usecase.GetAllOrderDetailsForAdmin(page, pageSize)
+	allOrderDetails, err := or.orderUseCase.GetAllOrderDetailsForAdmin(page, pageSize)
 	if err != nil {
 		errs := response.ClientResponse(http.StatusInternalServerError, "Could not retrieve order details", nil, err.Error())
 		c.JSON(http.StatusInternalServerError, errs)
@@ -121,7 +120,7 @@ func GetAllOrderDetailsForAdmin(c *gin.Context) {
 // @Success 200 {object} response.Response{}
 // @Failure 500 {object} response.Response{}
 // @Router /user/order [POST]
-func OrderItemsFromCart(c *gin.Context) {
+func (or *OrderHandler) OrderItemsFromCart(c *gin.Context) {
 	id, _ := c.Get("user_id")
 	userID := id.(int)
 	var orderFromCart models.OrderFromCart
@@ -131,7 +130,7 @@ func OrderItemsFromCart(c *gin.Context) {
 		return
 	}
 
-	orderSuccessResponse, err := usecase.OrderItemsFromCart(orderFromCart, userID)
+	orderSuccessResponse, err := or.orderUseCase.OrderItemsFromCart(orderFromCart, userID)
 	if err != nil {
 		errorRes := response.ClientResponse(http.StatusInternalServerError, "Could not do the order", nil, err.Error())
 		c.JSON(http.StatusInternalServerError, errorRes)
@@ -154,7 +153,7 @@ func OrderItemsFromCart(c *gin.Context) {
 // @Success 200 {object} response.Response{}
 // @Failure 500 {object} response.Response{}
 // @Router /user/order   [GET]
-func GetOrderDetails(c *gin.Context) {
+func (or *OrderHandler) GetOrderDetails(c *gin.Context) {
 	pageStr := c.DefaultQuery("page", "1")
 	page, err := strconv.Atoi(pageStr)
 	if err != nil {
@@ -170,7 +169,7 @@ func GetOrderDetails(c *gin.Context) {
 	}
 	id, _ := c.Get("user_id")
 	UserID := id.(int)
-	OrderDetails, err := usecase.GetOrderDetails(UserID, page, pageSize)
+	OrderDetails, err := or.orderUseCase.GetOrderDetails(UserID, page, pageSize)
 	if err != nil {
 		errorRes := response.ClientResponse(http.StatusInternalServerError, "Could not do the order", nil, err.Error())
 		c.JSON(http.StatusInternalServerError, errorRes)
@@ -190,7 +189,7 @@ func GetOrderDetails(c *gin.Context) {
 // @Success 200 {object} response.Response{}
 // @Failure 500 {object} response.Response{}
 // @Router /user/order   [PUT]
-func CancelOrder(c *gin.Context) {
+func (or *OrderHandler) CancelOrder(c *gin.Context) {
 	orderID, err := strconv.Atoi(c.Query("id"))
 	if err != nil {
 		errs := response.ClientResponse(http.StatusInternalServerError, "error from orderID", nil, err.Error())
@@ -199,7 +198,7 @@ func CancelOrder(c *gin.Context) {
 	}
 	id, _ := c.Get("user_id")
 	userID := id.(int)
-	err = usecase.CancelOrders(orderID, userID)
+	err = or.orderUseCase.CancelOrders(orderID, userID)
 	if err != nil {
 		errs := response.ClientResponse(http.StatusInternalServerError, "Could not cancel the order", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errs)
@@ -218,9 +217,9 @@ func CancelOrder(c *gin.Context) {
 // @Success		200	{object}	response.Response{}
 // @Failure		500	{object}	response.Response{}
 // @Router			/user/order/checkout    [GET]
-func CheckOut(c *gin.Context) {
+func (or *OrderHandler) CheckOut(c *gin.Context) {
 	userID, _ := c.Get("user_id")
-	checkoutDetails, err := usecase.Checkout(userID.(int))
+	checkoutDetails, err := or.orderUseCase.Checkout(userID.(int))
 
 	if err != nil {
 		errorRes := response.ClientResponse(http.StatusInternalServerError, "failed to retrieve details", nil, err.Error())
@@ -242,21 +241,21 @@ func CheckOut(c *gin.Context) {
 // @Success		200	{object}	response.Response{}
 // @Failure		500	{object}	response.Response{}
 // @Router			/user/order/place-order     [GET]
-func PlaceOrderCOD(c *gin.Context) {
+func (or *OrderHandler) PlaceOrderCOD(c *gin.Context) {
 	order_id, err := strconv.Atoi(c.Query("order_id"))
 	if err != nil {
 		errs := response.ClientResponse(http.StatusInternalServerError, "error from orderID", nil, err.Error())
 		c.JSON(http.StatusInternalServerError, errs)
 		return
 	}
-	paymentMethodID, err := usecase.PaymentMethodID(order_id)
+	paymentMethodID, err := or.orderUseCase.PaymentMethodID(order_id)
 	if err != nil {
 		err := response.ClientResponse(http.StatusInternalServerError, "error from paymentId ", nil, err.Error())
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
 	if paymentMethodID == 1 {
-		err := usecase.ExecutePurchaseCOD(order_id)
+		err := or.orderUseCase.ExecutePurchaseCOD(order_id)
 		if err != nil {
 			errorRes := response.ClientResponse(http.StatusInternalServerError, "error in cash on delivery ", nil, err.Error())
 			c.JSON(http.StatusInternalServerError, errorRes)

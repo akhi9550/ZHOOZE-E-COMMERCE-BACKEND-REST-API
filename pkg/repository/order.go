@@ -236,7 +236,30 @@ func (or *orderRepository) UpdateOrder(orderID int) error {
 	}
 	return nil
 }
-
+func (or *orderRepository) PaymentStatus(orderID int) (string, error) {
+	var status string
+	err := or.DB.Raw("SELECT payment_status FROM orders WHERE id= ?", orderID).Scan(&status).Error
+	if err != nil {
+		return "", err
+	}
+	return status, nil
+}
+func (or *orderRepository) TotalAmountFromOrder(orderID int) (float64, error) {
+	var total float64
+	err := or.DB.Raw("SELECT final_price FROM orders WHERE id = ?", orderID).Scan(&total).Error
+	if err != nil {
+		return 0.0, err
+	}
+	return total, nil
+}
+func (or *orderRepository) UserIDFromOrder(orderID int) (int, error) {
+	var a int
+	err := or.DB.Raw("SELECT user_id FROM orders WHERE id = ?", orderID).Scan(&a).Error
+	if err != nil {
+		return 0, err
+	}
+	return a, nil
+}
 func (or *orderRepository) AddOrderProducts(order_id int, cart []models.Cart) error {
 	query := `
     INSERT INTO order_items (order_id,product_id,quantity,total_price)
@@ -494,4 +517,18 @@ func (or *orderRepository) FindStock(id int) (int, error) {
 	}
 
 	return stock, nil
+}
+func (or *orderRepository) UpdateAmountToWallet(userID int, amount float64) error {
+	err := or.DB.Exec("UPDATE wallets SET amount = amount + ? WHERE user_id = ?", amount, userID).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func (or *orderRepository) UpdateHistory(userID, orderID int, amount float64, reason string) error {
+	err := or.DB.Exec("INSERT INTO wallet_histories (user_id ,order_id ,description ,amount) VALUES (?,?,?,?)", userID, orderID, reason, amount).Error
+	if err != nil {
+		return err
+	}
+	return nil
 }

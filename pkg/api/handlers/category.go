@@ -1,8 +1,7 @@
 package handlers
 
 import (
-	"Zhooze/pkg/usecase"
-	services "Zhooze/pkg/usecase"
+	services "Zhooze/pkg/usecase/interface"
 	"Zhooze/pkg/utils/models"
 	"Zhooze/pkg/utils/response"
 	"net/http"
@@ -15,7 +14,7 @@ type CategoryHandler struct {
 	categoryUseCase services.CategoryUseCase
 }
 
-func NewCategoryr(useCase services.CategoryUseCase) *CategoryHandler {
+func NewCategory(useCase services.CategoryUseCase) *CategoryHandler {
 	return &CategoryHandler{
 		categoryUseCase: useCase,
 	}
@@ -30,8 +29,8 @@ func NewCategoryr(useCase services.CategoryUseCase) *CategoryHandler {
 // @Success		200		{object}	response.Response{}
 // @Failure		500		{object}	response.Response{}
 // @Router			/admin/category   [GET]
-func GetCategory(c *gin.Context) {
-	category, err := usecase.GetCategory()
+func (cy *CategoryHandler) GetCategory(c *gin.Context) {
+	category, err := cy.categoryUseCase.GetCategory()
 	if err != nil {
 		errs := response.ClientResponse(http.StatusBadRequest, "Couldn't displayed categories", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errs)
@@ -51,14 +50,14 @@ func GetCategory(c *gin.Context) {
 // @Success		200	{object}	response.Response{}
 // @Failure		500	{object}	response.Response{}
 // @Router			/admin/category [POST]
-func AddCategory(c *gin.Context) {
+func (cy *CategoryHandler) AddCategory(c *gin.Context) {
 	var category models.Category
 	if err := c.ShouldBindJSON(&category); err != nil {
 		errs := response.ClientResponse(http.StatusBadRequest, "fields provided are in wrong format", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errs)
 		return
 	}
-	cate, err := usecase.AddCategory(category)
+	cate, err := cy.categoryUseCase.AddCategory(category)
 	if err != nil {
 		errs := response.ClientResponse(http.StatusBadRequest, "Could not add the Category", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errs)
@@ -79,14 +78,14 @@ func AddCategory(c *gin.Context) {
 // @Success		200	{object}	response.Response{}
 // @Failure		500	{object}	response.Response{}
 // @Router			/admin/category     [DELETE]
-func DeleteCategory(c *gin.Context) {
+func (cy *CategoryHandler) DeleteCategory(c *gin.Context) {
 	id, err := strconv.Atoi(c.Query("id"))
 	if err != nil {
 		errorRes := response.ClientResponse(http.StatusBadRequest, "fields provided are in wrong format", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errorRes)
 		return
 	}
-	err = usecase.DeleteCategory(id)
+	err = cy.categoryUseCase.DeleteCategory(id)
 	if err != nil {
 		errorRes := response.ClientResponse(http.StatusBadRequest, "could not delete the specified category", nil, err.Error())
 		c.JSON(http.StatusInternalServerError, errorRes)
@@ -107,14 +106,14 @@ func DeleteCategory(c *gin.Context) {
 // @Success		200	{object}	response.Response{}
 // @Failure		500	{object}	response.Response{}
 // @Router			/admin/category     [PUT]
-func UpdateCategory(c *gin.Context) {
+func (cy *CategoryHandler) UpdateCategory(c *gin.Context) {
 	var categoryUpdate models.SetNewName
 	if err := c.ShouldBindJSON(&categoryUpdate); err != nil {
 		errs := response.ClientResponse(http.StatusBadRequest, "fields provided are in wrong format", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errs)
 		return
 	}
-	ok, err := usecase.UpdateCategory(categoryUpdate.Current, categoryUpdate.New)
+	ok, err := cy.categoryUseCase.UpdateCategory(categoryUpdate.Current, categoryUpdate.New)
 	if err != nil {
 		errs := response.ClientResponse(http.StatusInternalServerError, "could not update the product", nil, err.Error())
 		c.JSON(http.StatusInternalServerError, errs)

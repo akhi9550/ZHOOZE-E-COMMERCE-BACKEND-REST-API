@@ -24,7 +24,7 @@ func NewPaymentUseCase(repository interfaces.PaymentRepository, orderRepo interf
 	}
 }
 func (pt *paymentUseCase) PaymentAlreadyPaid(orderID int) (bool, error) {
-	AlreadyPayed, err := pt.PaymentAlreadyPaid(orderID)
+	AlreadyPayed, err := pt.orderRepository.PaymentAlreadyPaid(orderID)
 	if err != nil {
 		return false, err
 	}

@@ -41,3 +41,23 @@ func GetCouponDiscountPrice(userID int, TotalPrice float64, DB *gorm.DB) (float6
 	return ((float64(coup.DiscountPercentage) * totalPrice) / 100), nil
 
 }
+func GetReferralDiscountPrice(FinalPrice float64, userID int, DB *gorm.DB) (float64, error) {
+	var count int
+	err := DB.Raw("SELECT COUNT(*) FROM referrals WHERE user_id = ?", userID).Scan(&count).Error
+	if err != nil {
+		return 0.0, err
+	}
+	if count < 0 {
+		return 0.0, nil
+	}
+	var Price float64
+	err = DB.Raw("SELECT referral_amount FROM referrals WHERE user_id = ? ", userID).Scan(&Price).Error
+	if err != nil {
+		return 0.0, err
+	}
+	if FinalPrice < Price {
+		return 0.0, nil
+	}
+	return (FinalPrice - Price), nil
+
+}

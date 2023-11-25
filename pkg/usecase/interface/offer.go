@@ -6,10 +6,10 @@ import (
 )
 
 type OfferUseCase interface {
-	AddProductOffer(model models.ProductOfferReceiver)
+	AddProductOffer(models.ProductOfferReceiver)error
 	GetOffers() ([]domain.ProductOffer, error)
 	MakeOfferExpire(id int) error
-	AddCategoryOffer(model models.CategoryOfferReceiver) error
+	AddCategoryOffer(models.CategoryOfferReceiver) error
 	GetCategoryOffer() ([]domain.CategoryOffer, error)
 	ExpireCategoryOffer(id int) error
 }

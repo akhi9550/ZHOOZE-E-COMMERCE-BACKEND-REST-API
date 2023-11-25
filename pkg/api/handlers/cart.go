@@ -1,8 +1,7 @@
 package handlers
 
 import (
-	"Zhooze/pkg/usecase"
-	services "Zhooze/pkg/usecase"
+	services "Zhooze/pkg/usecase/interface"
 	"Zhooze/pkg/utils/response"
 	"net/http"
 	"strconv"
@@ -12,12 +11,14 @@ import (
 
 type CartHandler struct {
 	cartUseCase services.CartUseCase
+	userUseCase services.UserUseCase
 }
 
-func NewCartHandler(usecase services.CartUseCase) *CartHandler {
+func NewCartHandler(usecase services.CartUseCase, usecaseUser services.UserUseCase) *CartHandler {
 
 	return &CartHandler{
 		cartUseCase: usecase,
+		userUseCase: usecaseUser,
 	}
 
 }
@@ -32,7 +33,7 @@ func NewCartHandler(usecase services.CartUseCase) *CartHandler {
 // @Success		200	{object}	response.Response{}
 // @Failure		500	{object}	response.Response{}
 // @Router			/user/cart  [post]
-func AddToCart(c *gin.Context) {
+func (ct *CartHandler) AddToCart(c *gin.Context) {
 	id := c.Query("product_id")
 	product_id, err := strconv.Atoi(id)
 	if err != nil {
@@ -41,7 +42,7 @@ func AddToCart(c *gin.Context) {
 		return
 	}
 	user_ID, _ := c.Get("user_id")
-	cartResponse, err := usecase.AddToCart(product_id, user_ID.(int))
+	cartResponse, err := ct.cartUseCase.AddToCart(product_id, user_ID.(int))
 	if err != nil {
 		errs := response.ClientResponse(http.StatusBadGateway, "could not add product to the cart", nil, err.Error())
 		c.JSON(http.StatusBadGateway, errs)
@@ -61,7 +62,7 @@ func AddToCart(c *gin.Context) {
 // @Success		200	{object}	response.Response{}
 // @Failure		500	{object}	response.Response{}
 // @Router			/user/cart    [DELETE]
-func RemoveFromCart(c *gin.Context) {
+func (ct *CartHandler) RemoveFromCart(c *gin.Context) {
 	id := c.Query("id")
 	product_id, err := strconv.Atoi(id)
 	if err != nil {
@@ -70,7 +71,7 @@ func RemoveFromCart(c *gin.Context) {
 		return
 	}
 	userID, _ := c.Get("user_id")
-	updatedCart, err := usecase.RemoveFromCart(product_id, userID.(int))
+	updatedCart, err := ct.cartUseCase.RemoveFromCart(product_id, userID.(int))
 	if err != nil {
 		errs := response.ClientResponse(http.StatusBadGateway, "cannot remove product from the cart", nil, err.Error())
 		c.JSON(http.StatusBadGateway, errs)
@@ -89,9 +90,9 @@ func RemoveFromCart(c *gin.Context) {
 // @Success		200	{object}	response.Response{}
 // @Failure		500	{object}	response.Response{}
 // @Router			/user/cart  [GET]
-func DisplayCart(c *gin.Context) {
+func (ct *CartHandler) DisplayCart(c *gin.Context) {
 	userID, _ := c.Get("user_id")
-	cart, err := usecase.DisplayCart(userID.(int))
+	cart, err := ct.cartUseCase.DisplayCart(userID.(int))
 	if err != nil {
 		errs := response.ClientResponse(http.StatusBadRequest, "cannot display cart", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errs)
@@ -110,9 +111,9 @@ func DisplayCart(c *gin.Context) {
 // @Success		200	{object}	response.Response{}
 // @Failure		500	{object}	response.Response{}
 // @Router			/user/cart/empty   [DELETE]
-func EmptyCart(c *gin.Context) {
+func (ct *CartHandler) EmptyCart(c *gin.Context) {
 	userID, _ := c.Get("user_id")
-	cart, err := usecase.EmptyCart(userID.(int))
+	cart, err := ct.cartUseCase.EmptyCart(userID.(int))
 	if err != nil {
 		errorRes := response.ClientResponse(http.StatusBadRequest, "cannot empty the cart", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errorRes)
@@ -133,7 +134,7 @@ func EmptyCart(c *gin.Context) {
 // @Success		200	{object}	response.Response{}
 // @Failure		500	{object}	response.Response{}
 // @Router			/user/cart/updatequantityadd   [PUT]
-func UpdateQuantityAdd(c *gin.Context) {
+func (ct *CartHandler) UpdateQuantityAdd(c *gin.Context) {
 	id, _ := c.Get("user_id")
 	productID, err := strconv.Atoi(c.Query("product_id"))
 	if err != nil {
@@ -141,7 +142,7 @@ func UpdateQuantityAdd(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, errorRes)
 		return
 	}
-	if err := usecase.UpdateQuantityAdd(id.(int), productID); err != nil {
+	if err := ct.userUseCase.UpdateQuantityAdd(id.(int), productID); err != nil {
 		errorRes := response.ClientResponse(http.StatusBadRequest, "could not Add the quantity", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errorRes)
 		return
@@ -160,7 +161,7 @@ func UpdateQuantityAdd(c *gin.Context) {
 // @Success		200	{object}	response.Response{}
 // @Failure		500	{object}	response.Response{}
 // @Router			/user/cart/updatequantityless     [PUT]
-func UpdateQuantityless(c *gin.Context) {
+func (ct *CartHandler) UpdateQuantityless(c *gin.Context) {
 	id, _ := c.Get("user_id")
 	productID, err := strconv.Atoi(c.Query("product_id"))
 	if err != nil {
@@ -168,7 +169,7 @@ func UpdateQuantityless(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, errorRes)
 		return
 	}
-	if err := usecase.UpdateQuantityless(id.(int), productID); err != nil {
+	if err := ct.userUseCase.UpdateQuantityless(id.(int), productID); err != nil {
 		errorRes := response.ClientResponse(http.StatusBadRequest, "could not Add the quantity", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errorRes)
 		return

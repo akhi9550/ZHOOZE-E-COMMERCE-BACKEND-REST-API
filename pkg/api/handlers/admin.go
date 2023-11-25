@@ -4,7 +4,6 @@ import (
 	services "Zhooze/pkg/usecase/interface"
 	"Zhooze/pkg/utils/models"
 	"Zhooze/pkg/utils/response"
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"

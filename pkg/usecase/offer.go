@@ -11,6 +11,7 @@ import (
 type offerUseCase struct {
 	offerRepository interfaces.OfferRepository
 }
+
 func NewOfferUseCase(repo interfaces.OfferRepository) services.OfferUseCase {
 	return &offerUseCase{
 		offerRepository: repo,

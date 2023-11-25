@@ -5,76 +5,78 @@ import (
 	"Zhooze/pkg/api/middleware"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
-func UserRoutes(r *gin.RouterGroup, db *gorm.DB) *gin.RouterGroup {
+func UserRoutes(r *gin.RouterGroup, userHandler *handlers.UserHandler, otpHandler *handlers.OtpHandler, productHandler *handlers.ProductHandler, cartHandler *handlers.CartHandler, orderHandler *handlers.OrderHandler, paymentHandler *handlers.PaymentHandler, couponHandler *handlers.CouponHandler, offerHandler *handlers.OfferHandler, wishlistHandler *handlers.WishListHandler, walletHandler *handlers.WalletHandler) {
 
-	r.POST("/signup", handlers.UserSignup)
-	r.POST("/userlogin", handlers.Userlogin)
+	r.POST("/signup", userHandler.UserSignup)
+	r.POST("/userlogin", userHandler.Userlogin)
 
-	r.POST("/send-otp", handlers.SendOtp)
-	r.POST("/verify-otp", handlers.VerifyOtp)
+	r.POST("/send-otp", otpHandler.SendOtp)
+	r.POST("/verify-otp", otpHandler.VerifyOtp)
 
-	r.POST("/forgot-password", handlers.ForgotPasswordSend)
-	r.POST("/forgot-password-verify", handlers.ForgotPasswordVerifyAndChange)
+	r.POST("/forgot-password", userHandler.ForgotPasswordSend)
+	r.POST("/forgot-password-verify", userHandler.ForgotPasswordVerifyAndChange)
 
-	r.GET("/razorpay", handlers.MakePaymentRazorPay)
-	r.GET("/update_status", handlers.VerifyPayment)
+	r.GET("/razorpay", paymentHandler.MakePaymentRazorPay)
+	r.GET("/update_status", paymentHandler.VerifyPayment)
 
 	products := r.Group("/products")
 	{
-		products.GET("", handlers.ShowAllProducts)
-		products.POST("/filter", handlers.FilterCategory)
-		products.GET("/image", handlers.ShowImages)
+		products.GET("", productHandler.ShowAllProducts)
+		products.POST("/filter", productHandler.FilterCategory)
+		products.GET("/image", productHandler.ShowImages)
 
 	}
 	r.Use(middleware.UserAuthMiddleware())
 	{
 		address := r.Group("/address")
 		{
-			address.GET("", handlers.GetAllAddress)
-			address.POST("", handlers.AddAddress)
-			address.PUT("", handlers.UpdateAddress)
-			address.DELETE("", handlers.DeleteAddressByID)
+			address.GET("", userHandler.GetAllAddress)
+			address.POST("", userHandler.AddAddress)
+			address.PUT("", userHandler.UpdateAddress)
+			address.DELETE("", userHandler.DeleteAddressByID)
 		}
 		users := r.Group("/users")
 		{
-			users.GET("", handlers.UserDetails)
-			users.PUT("", handlers.UpdateUserDetails)
-			users.PUT("/changepassword", handlers.ChangePassword)
+			users.GET("", userHandler.UserDetails)
+			users.PUT("", userHandler.UpdateUserDetails)
+			users.PUT("/changepassword", userHandler.ChangePassword)
 		}
 
 		wishlist := r.Group("/wishlist")
 		{
-			wishlist.POST("", handlers.AddToWishlist)
-			wishlist.GET("", handlers.GetWishList)
-			wishlist.DELETE("", handlers.RemoveFromWishlist)
+			wishlist.POST("", wishlistHandler.AddToWishlist)
+			wishlist.GET("", wishlistHandler.GetWishList)
+			wishlist.DELETE("", wishlistHandler.RemoveFromWishlist)
 		}
 
 		cart := r.Group("/cart")
 		{
-			cart.POST("", handlers.AddToCart)
-			cart.DELETE("", handlers.RemoveFromCart)
-			cart.GET("", handlers.DisplayCart)
-			cart.DELETE("/empty", handlers.EmptyCart)
-			cart.PUT("/updatequantityadd", handlers.UpdateQuantityAdd)
-			cart.PUT("/updatequantityless", handlers.UpdateQuantityless)
+			cart.POST("", cartHandler.AddToCart)
+			cart.DELETE("", cartHandler.RemoveFromCart)
+			cart.GET("", cartHandler.DisplayCart)
+			cart.DELETE("/empty", cartHandler.EmptyCart)
+			cart.PUT("/updatequantityadd", cartHandler.UpdateQuantityAdd)
+			cart.PUT("/updatequantityless", cartHandler.UpdateQuantityless)
 
 		}
 
 		order := r.Group("/order")
 		{
-			order.POST("", handlers.OrderItemsFromCart)
-			order.GET("", handlers.GetOrderDetails)
-			order.GET("/checkout", handlers.CheckOut)
-			order.GET("/place-order", handlers.PlaceOrderCOD)
-			order.PUT("", handlers.CancelOrder)
+			order.POST("", orderHandler.OrderItemsFromCart)
+			order.GET("", orderHandler.GetOrderDetails)
+			order.GET("/checkout", orderHandler.CheckOut)
+			order.GET("/place-order", orderHandler.PlaceOrderCOD)
+			order.PUT("", orderHandler.CancelOrder)
 		}
-		r.POST("/coupon/apply", handlers.ApplyCoupon)
-		r.GET("/referral/apply", handlers.ApplyReferral)
+		r.POST("/coupon/apply", couponHandler.ApplyCoupon)
+		r.GET("/referral/apply", userHandler.ApplyReferral)
+		wallet := r.Group("/wallet")
+		{
+			wallet.GET("", walletHandler.GetWallet)
+			wallet.GET("/history", walletHandler.WalletHistory)
+		}
 	}
-
-	return r
 
 }

@@ -15,16 +15,15 @@ import (
 )
 
 type adminUseCase struct {
-	adminRepository interfaces.AdminRepository
-	orderRepository interfaces.OrderRepository
+	adminRepository   interfaces.AdminRepository
+	orderRepository   interfaces.OrderRepository
 	paymentRepository interfaces.PaymentRepository
-	
 }
 
-func NewAdminUseCase(repository interfaces.AdminRepository, orderRepo interfaces.OrderRepository,paymentRepo interfaces.PaymentRepository) services.AdminUseCase {
+func NewAdminUseCase(repository interfaces.AdminRepository, orderRepo interfaces.OrderRepository, paymentRepo interfaces.PaymentRepository) services.AdminUseCase {
 	return &adminUseCase{
-		adminRepository: repository,
-		orderRepository: orderRepo,
+		adminRepository:   repository,
+		orderRepository:   orderRepo,
 		paymentRepository: paymentRepo,
 	}
 }
@@ -126,59 +125,6 @@ func (ad *adminUseCase) UnBlockedUser(id string) error {
 	}
 	return nil
 }
-
-func (ad *adminUseCase) FilteredSalesReport(timePeriod string) (models.SalesReport, error) {
-	startTime, endTime := helper.GetTimeFromPeriod(timePeriod)
-	saleReport, err := ad.adminRepository.FilteredSalesReport(startTime, endTime)
-
-	if err != nil {
-		return models.SalesReport{}, err
-	}
-	return saleReport, nil
-
-}
-func (ad *adminUseCase) ExecuteSalesReportByDate(startDate, endDate time.Time) (models.SalesReport, error) {
-	orders, err := ad.adminRepository.FilteredSalesReport(startDate, endDate)
-	if err != nil {
-		return models.SalesReport{}, errors.New("report fetching failed")
-	}
-	return orders, nil
-}
-
-func (ad *adminUseCase) AddPaymentMethod(payment models.NewPaymentMethod) (domain.PaymentMethod, error) {
-	exists, err := ad.adminRepository.CheckIfPaymentMethodAlreadyExists(payment.PaymentName)
-	if err != nil {
-		return domain.PaymentMethod{}, err
-	}
-	if exists {
-		return domain.PaymentMethod{}, errors.New("payment method already exists")
-	}
-	paymentadd, err := ad.adminRepository.AddPaymentMethod(payment)
-	if err != nil {
-		return domain.PaymentMethod{}, err
-	}
-	return paymentadd, nil
-}
-
-func (ad *adminUseCase) ListPaymentMethods() ([]domain.PaymentMethod, error) {
-
-	categories, err := ad.adminRepository.ListPaymentMethods()
-	if err != nil {
-		return []domain.PaymentMethod{}, err
-	}
-	return categories, nil
-
-}
-
-func (ad *adminUseCase) DeletePaymentMethod(id int) error {
-
-	err := ad.adminRepository.DeletePaymentMethod(id)
-	if err != nil {
-		return err
-	}
-	return nil
-
-}
 func (ad *adminUseCase) GetAllOrderDetailsForAdmin(page, pagesize int) ([]models.CombinedOrderDetails, error) {
 	orderDetail, err := ad.orderRepository.GetAllOrderDetailsBrief(page, pagesize)
 	if err != nil {
@@ -238,15 +184,68 @@ func (ad *adminUseCase) CancelOrderFromAdmin(orderID int) error {
 		return err
 	}
 	if payment_status == "refunded" {
-		err = ad.adminRepository.UpdateAmountToWallet(userID, amount)
+		err = ad.orderRepository.UpdateAmountToWallet(userID, amount)
 		if err != nil {
 			return err
 		}
 		reason := "Amount credited for  cancellation of order by admin"
-		err := ad.adminRepository.UpdateHistory(userID, orderID, amount, reason)
+		err := ad.orderRepository.UpdateHistory(userID, orderID, amount, reason)
 		if err != nil {
 			return err
 		}
+	}
+	return nil
+
+}
+
+func (ad *adminUseCase) FilteredSalesReport(timePeriod string) (models.SalesReport, error) {
+	startTime, endTime := helper.GetTimeFromPeriod(timePeriod)
+	saleReport, err := ad.adminRepository.FilteredSalesReport(startTime, endTime)
+
+	if err != nil {
+		return models.SalesReport{}, err
+	}
+	return saleReport, nil
+
+}
+func (ad *adminUseCase) ExecuteSalesReportByDate(startDate, endDate time.Time) (models.SalesReport, error) {
+	orders, err := ad.adminRepository.FilteredSalesReport(startDate, endDate)
+	if err != nil {
+		return models.SalesReport{}, errors.New("report fetching failed")
+	}
+	return orders, nil
+}
+
+func (ad *adminUseCase) AddPaymentMethod(payment models.NewPaymentMethod) (domain.PaymentMethod, error) {
+	exists, err := ad.adminRepository.CheckIfPaymentMethodAlreadyExists(payment.PaymentName)
+	if err != nil {
+		return domain.PaymentMethod{}, err
+	}
+	if exists {
+		return domain.PaymentMethod{}, errors.New("payment method already exists")
+	}
+	paymentadd, err := ad.adminRepository.AddPaymentMethod(payment)
+	if err != nil {
+		return domain.PaymentMethod{}, err
+	}
+	return paymentadd, nil
+}
+
+func (ad *adminUseCase) ListPaymentMethods() ([]domain.PaymentMethod, error) {
+
+	categories, err := ad.adminRepository.ListPaymentMethods()
+	if err != nil {
+		return []domain.PaymentMethod{}, err
+	}
+	return categories, nil
+
+}
+
+func (ad *adminUseCase) DeletePaymentMethod(id int) error {
+
+	err := ad.adminRepository.DeletePaymentMethod(id)
+	if err != nil {
+		return err
 	}
 	return nil
 

@@ -9,6 +9,9 @@ type OrderRepository interface {
 	DoesCartExist(userID int) (bool, error)
 	AddressExist(orderBody models.OrderIncoming) (bool, error)
 	PaymentExist(orderBody models.OrderIncoming) (bool, error)
+	PaymentStatus(orderID int) (string, error)
+	TotalAmountFromOrder(orderID int) (float64, error)
+	UserIDFromOrder(orderID int) (int, error)
 	CheckOrderID(orderId int) (bool, error)
 	GetOrderDetails(userId int, page int, count int) ([]models.FullOrderDetails, error)
 	GetOrderDetail(orderId int) (models.OrderDetails, error)
@@ -51,4 +54,6 @@ type OrderRepository interface {
 	FindCartQuantity(cart_id, product_id int) (int, error)
 	FindPrice(product_id int) (float64, error)
 	FindStock(id int) (int, error)
+	UpdateHistory(userID, orderID int, amount float64, reason string) error
+	UpdateAmountToWallet(userID int, amount float64) error
 }
