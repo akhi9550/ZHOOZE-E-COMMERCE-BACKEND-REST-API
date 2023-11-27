@@ -25,7 +25,7 @@ func UserRoutes(r *gin.RouterGroup, userHandler *handlers.UserHandler, otpHandle
 	{
 		products.GET("", productHandler.ShowAllProducts)
 		products.POST("/filter", productHandler.FilterCategory)
-		products.GET("/image", productHandler.ShowImages)
+		products.GET("/image", productHandler.ShowImages) //Individual Images
 
 	}
 	r.Use(middleware.UserAuthMiddleware())

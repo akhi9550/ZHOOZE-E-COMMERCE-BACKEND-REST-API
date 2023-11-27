@@ -8,7 +8,7 @@ import (
 type ProductRepository interface {
 	ShowAllProducts(page int, count int) ([]models.ProductBrief, error)
 	ShowAllProductsFromAdmin(page int, count int) ([]models.ProductBrief, error)
-
+	GetImage(productID int) ([]string, error)
 	CheckValidateCategory(data map[string]int) error
 	GetProductFromCategory(id int) ([]models.ProductBrief, error)
 	GetQuantityFromProductID(id int) (int, error)

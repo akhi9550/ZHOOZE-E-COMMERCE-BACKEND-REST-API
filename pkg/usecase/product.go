@@ -6,20 +6,20 @@ import (
 	interfaces "Zhooze/pkg/repository/interface"
 	services "Zhooze/pkg/usecase/interface"
 
-	
 	"Zhooze/pkg/utils/models"
 	"errors"
 	"mime/multipart"
 )
+
 type productUseCase struct {
 	productRepository interfaces.ProductRepository
-	offerRepository interfaces.OfferRepository
+	offerRepository   interfaces.OfferRepository
 }
 
 func NewProductUseCase(repository interfaces.ProductRepository, offerRepo interfaces.OfferRepository) services.ProductUseCase {
 	return &productUseCase{
 		productRepository: repository,
-		offerRepository: offerRepo,
+		offerRepository:   offerRepo,
 	}
 }
 func (pr *productUseCase) ShowAllProducts(page int, count int) ([]models.ProductBrief, error) {
@@ -59,7 +59,17 @@ func (pr *productUseCase) ShowAllProducts(page int, count int) ([]models.Product
 
 		productDetails[j].DiscountedPrice = productDetails[j].DiscountedPrice - categorydiscount
 	}
-	return productDetails, nil
+	var updatedproductDetails []models.ProductBrief
+	for _, p := range productDetails {
+		img, err := pr.productRepository.GetImage(int(p.ID))
+		if err != nil {
+			return nil, err
+		}
+		p.Image = img
+		updatedproductDetails = append(updatedproductDetails, p)
+	}
+
+	return updatedproductDetails, nil
 }
 
 func (pr *productUseCase) ShowAllProductsFromAdmin(page int, count int) ([]models.ProductBrief, error) {
@@ -97,7 +107,18 @@ func (pr *productUseCase) ShowAllProductsFromAdmin(page int, count int) ([]model
 
 		productDetails[j].DiscountedPrice = productDetails[j].DiscountedPrice - categorydiscount
 	}
-	return productDetails, nil
+	var updatedproductDetails []models.ProductBrief
+	for _, p := range productDetails {
+		img, err := pr.productRepository.GetImage(int(p.ID))
+		if err != nil {
+			return nil, err
+		}
+		p.Image = img
+		updatedproductDetails = append(updatedproductDetails, p)
+	}
+
+	return updatedproductDetails, nil
+
 }
 func (pr *productUseCase) FilterCategory(data map[string]int) ([]models.ProductBrief, error) {
 	err := pr.productRepository.CheckValidateCategory(data)
@@ -147,7 +168,18 @@ func (pr *productUseCase) FilterCategory(data map[string]int) ([]models.ProductB
 
 		ProductFromCategory[j].DiscountedPrice = ProductFromCategory[j].DiscountedPrice - categorydiscount
 	}
-	return ProductFromCategory, nil
+	var updatedproductDetails []models.ProductBrief
+	for _, p := range ProductFromCategory {
+		img, err := pr.productRepository.GetImage(int(p.ID))
+		if err != nil {
+			return nil, err
+		}
+		p.Image = img
+		updatedproductDetails = append(updatedproductDetails, p)
+	}
+
+	return updatedproductDetails, nil
+
 }
 
 func (pr *productUseCase) AddProducts(product models.Product) (domain.Product, error) {

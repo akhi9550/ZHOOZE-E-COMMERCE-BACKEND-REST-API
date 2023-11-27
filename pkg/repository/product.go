@@ -213,3 +213,11 @@ func (pr *productRepository) ShowImages(productID int) ([]models.Image, error) {
 	}
 	return image, nil
 }
+func (pr *productRepository) GetImage(productID int) ([]string, error) {
+	var url []string
+	if err := pr.DB.Raw(`SELECT url FROM Images WHERE product_id=?`, productID).Scan(&url).Error; err != nil {
+		return url, err
+	}
+	return url, nil
+
+}

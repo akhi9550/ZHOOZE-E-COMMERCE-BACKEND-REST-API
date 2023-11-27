@@ -5,15 +5,16 @@ type Image struct {
 }
 
 type ProductBrief struct {
-	ID              uint    `json:"id" gorm:"unique;not null"`
-	Name            string  `json:"name"`
-	Description     string  `json:"description"`
-	CategoryID      int     `json:"category_id"`
-	Size            int     `json:"size"`
-	Stock           int     `json:"stock"`
-	Price           float64 `json:"price"`
-	DiscountedPrice float64 `json:"discounted_price"`
-	ProductStatus   string  `json:"product_status"`
+	ID              uint     `json:"id" gorm:"unique;not null"`
+	Name            string   `json:"name"`
+	Description     string   `json:"description"`
+	CategoryID      int      `json:"category_id"`
+	Size            int      `json:"size"`
+	Stock           int      `json:"stock"`
+	Price           float64  `json:"price"`
+	DiscountedPrice float64  `json:"discounted_price"`
+	ProductStatus   string   `json:"product_status"`
+	Image           []string `json:"image"`
 }
 
 type ProductReceiver struct {
