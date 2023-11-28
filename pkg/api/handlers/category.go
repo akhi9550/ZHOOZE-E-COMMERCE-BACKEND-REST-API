@@ -14,7 +14,7 @@ type CategoryHandler struct {
 	categoryUseCase services.CategoryUseCase
 }
 
-func NewCategory(useCase services.CategoryUseCase) *CategoryHandler {
+func NewCategoryHandler(useCase services.CategoryUseCase) *CategoryHandler {
 	return &CategoryHandler{
 		categoryUseCase: useCase,
 	}

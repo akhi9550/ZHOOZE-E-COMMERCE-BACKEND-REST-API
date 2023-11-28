@@ -13,8 +13,8 @@ type categoryRepository struct {
 	DB *gorm.DB
 }
 
-func NewCategoryRepository(DB *gorm.DB) interfaces.CartRepository {
-	return &cartRepository{
+func NewCategoryRepository(DB *gorm.DB) interfaces.CategoryRepository {
+	return &categoryRepository{
 		DB: DB,
 	}
 }

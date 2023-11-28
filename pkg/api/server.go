@@ -18,7 +18,7 @@ type ServerHTTP struct {
 func NewServerHTTP(userHandler *handlers.UserHandler, productHandler *handlers.ProductHandler, otpHandler *handlers.OtpHandler, adminHandler *handlers.AdminHandler, cartHandler *handlers.CartHandler, orderHandler *handlers.OrderHandler, couponHandler *handlers.CouponHandler, paymentHandler *handlers.PaymentHandler, categoryHandler *handlers.CategoryHandler, offerHandler *handlers.OfferHandler, wishlistHandler *handlers.WishListHandler, walletHandler *handlers.WalletHandler) *ServerHTTP {
 	router := gin.New()
 
-	router.LoadHTMLGlob("templates/*.html")
+	router.LoadHTMLGlob("template/*.html")
 
 	router.Use(gin.Logger())
 
