@@ -3,4 +3,4 @@ run:
 
 
 swag: 
-	swag init -g main.go -o ./cmd/docs
+	swag init -g main.go -o ./cmd/api/docs

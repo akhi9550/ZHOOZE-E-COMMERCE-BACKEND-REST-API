@@ -15,10 +15,10 @@ func main() {
 
 	// // swagger 2.0 Meta Information
 	docs.SwaggerInfo.Title = "Zhooze - E-commerce"
-	docs.SwaggerInfo.Description = "Zhooze - E-commerce"
+	docs.SwaggerInfo.Description = "Zhooze is an E-commerce platform to purchasing and selling shoes"
 	docs.SwaggerInfo.Version = "1.0"
 	docs.SwaggerInfo.Host = "localhost:3000"
-	docs.SwaggerInfo.BasePath = ""
+	docs.SwaggerInfo.BasePath = "/"
 	docs.SwaggerInfo.Schemes = []string{"http"}
 
 	config, configErr := config.LoadConfig()
