@@ -65,13 +65,13 @@ func (of *offerRepository) GetOffers() ([]domain.ProductOffer, error) {
 
 	return model, nil
 }
-func (of *offerRepository) MakeOfferExpire(id int) error {
-	if err := of.DB.Exec("DELETE FROM product_offers WHERE id = $1", id).Error; err != nil {
-		return err
-	}
+// func (of *offerRepository) MakeOfferExpire(id int) error {
+// 	if err := of.DB.Exec("DELETE FROM product_offers WHERE id = $1", id).Error; err != nil {
+// 		return err
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 func (of *offerRepository) FindDiscountPercentageForProduct(id int) (int, error) {
 	var percentage int
 	err := of.DB.Raw("SELECT discount_percentage FROM product_offers WHERE product_id= $1 ", id).Scan(&percentage).Error
@@ -120,13 +120,13 @@ func (of *offerRepository) GetCategoryOffer() ([]domain.CategoryOffer, error) {
 	}
 	return model, nil
 }
-func (of *offerRepository) ExpireCategoryOffer(id int) error {
-	if err := of.DB.Exec("DELETE FROM category_offers WHERE id = $1", id).Error; err != nil {
-		return err
-	}
+// func (of *offerRepository) ExpireCategoryOffer(id int) error {
+// 	if err := of.DB.Exec("DELETE FROM category_offers WHERE id = $1", id).Error; err != nil {
+// 		return err
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 func (of *offerRepository) FindDiscountPercentageForCategory(id int) (int, error) {
 	var percentage int
 	err := of.DB.Raw("SELECT discount_percentage FROM category_offers WHERE category_id= $1 ", id).Scan(&percentage).Error

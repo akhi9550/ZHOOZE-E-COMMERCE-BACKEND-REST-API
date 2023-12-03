@@ -34,13 +34,13 @@ func (of *offerUseCase) GetOffers() ([]domain.ProductOffer, error) {
 	return offers, nil
 
 }
-func (of *offerUseCase) MakeOfferExpire(id int) error {
-	if err := of.offerRepository.MakeOfferExpire(id); err != nil {
-		return err
-	}
+// func (of *offerUseCase) MakeOfferExpire(id int) error {
+// 	if err := of.offerRepository.MakeOfferExpire(id); err != nil {
+// 		return err
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
 func (of *offerUseCase) AddCategoryOffer(model models.CategoryOfferReceiver) error {
 	if err := of.offerRepository.AddCategoryOffer(model); err != nil {
@@ -58,10 +58,10 @@ func (of *offerUseCase) GetCategoryOffer() ([]domain.CategoryOffer, error) {
 	return offers, nil
 
 }
-func (of *offerUseCase) ExpireCategoryOffer(id int) error {
-	if err := of.offerRepository.ExpireCategoryOffer(id); err != nil {
-		return err
-	}
+// func (of *offerUseCase) ExpireCategoryOffer(id int) error {
+// 	if err := of.offerRepository.ExpireCategoryOffer(id); err != nil {
+// 		return err
+// 	}
 
-	return nil
-}
+// 	return nil
+// }

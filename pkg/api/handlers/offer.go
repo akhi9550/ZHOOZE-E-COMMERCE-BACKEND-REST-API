@@ -5,7 +5,6 @@ import (
 	"Zhooze/pkg/utils/models"
 	"Zhooze/pkg/utils/response"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -82,34 +81,34 @@ func (of *OfferHandler) GetProductOffer(c *gin.Context) {
 
 }
 
-// @Summary Add  Product Offer
-// @Description Add a new Offer for a product by specifying a limit
-// @Tags Admin Offer Management
-// @Accept json
-// @Produce json
-// @Security Bearer
-// @Param	id	query	string	true	"id"
-// @Success 200 {object} response.Response{}
-// @Failure 500 {object} response.Response{}
-// @Router /admin/offer/product-offer   [DELETE]
-func (of *OfferHandler) ExpireProductOffer(c *gin.Context) {
-	id, err := strconv.Atoi(c.Query("id"))
-	if err != nil {
-		errorRes := response.ClientResponse(http.StatusBadRequest, "fields provided are in wrong format", nil, err.Error())
-		c.JSON(http.StatusBadRequest, errorRes)
-		return
-	}
+// // @Summary Add  Product Offer
+// // @Description Add a new Offer for a product by specifying a limit
+// // @Tags Admin Offer Management
+// // @Accept json
+// // @Produce json
+// // @Security Bearer
+// // @Param	id	query	string	true	"id"
+// // @Success 200 {object} response.Response{}
+// // @Failure 500 {object} response.Response{}
+// // @Router /admin/offer/product-offer   [DELETE]
+// func (of *OfferHandler) ExpireProductOffer(c *gin.Context) {
+// 	id, err := strconv.Atoi(c.Query("id"))
+// 	if err != nil {
+// 		errorRes := response.ClientResponse(http.StatusBadRequest, "fields provided are in wrong format", nil, err.Error())
+// 		c.JSON(http.StatusBadRequest, errorRes)
+// 		return
+// 	}
 
-	if err := of.OfferUseCase.MakeOfferExpire(id); err != nil {
-		errorRes := response.ClientResponse(http.StatusBadRequest, "Coupon cannot be made invalid", nil, err.Error())
-		c.JSON(http.StatusBadRequest, errorRes)
-		return
-	}
+// 	if err := of.OfferUseCase.MakeOfferExpire(id); err != nil {
+// 		errorRes := response.ClientResponse(http.StatusBadRequest, "Coupon cannot be made invalid", nil, err.Error())
+// 		c.JSON(http.StatusBadRequest, errorRes)
+// 		return
+// 	}
 
-	successRes := response.ClientResponse(http.StatusOK, "Successfully made Coupon as invalid", nil, nil)
-	c.JSON(http.StatusOK, successRes)
+// 	successRes := response.ClientResponse(http.StatusOK, "Successfully made Coupon as invalid", nil, nil)
+// 	c.JSON(http.StatusOK, successRes)
 
-}
+// }
 
 // @Summary Add Category Offer
 // @Description Add a new Offer for a product by specifying a limit
@@ -172,31 +171,31 @@ func (of *OfferHandler) GetCategoryOffer(c *gin.Context) {
 
 }
 
-// @Summary Add  Category Offer
-// @Description Add a new Offer for a category by specifying a limit
-// @Tags Admin Offer Management
-// @Accept json
-// @Produce json
-// @Security Bearer
-// @Param	id	query	string	true	"id"
-// @Success 200 {object} response.Response{}
-// @Failure 500 {object} response.Response{}
-// @Router /admin/offer/category-offer   [DELETE]
-func (of *OfferHandler) ExpireCategoryOffer(c *gin.Context) {
-	id, err := strconv.Atoi(c.Query("id"))
-	if err != nil {
-		errorRes := response.ClientResponse(http.StatusBadRequest, "fields provided are in wrong format", nil, err.Error())
-		c.JSON(http.StatusBadRequest, errorRes)
-		return
-	}
+// // @Summary Add  Category Offer
+// // @Description Add a new Offer for a category by specifying a limit
+// // @Tags Admin Offer Management
+// // @Accept json
+// // @Produce json
+// // @Security Bearer
+// // @Param	id	query	string	true	"id"
+// // @Success 200 {object} response.Response{}
+// // @Failure 500 {object} response.Response{}
+// // @Router /admin/offer/category-offer   [DELETE]
+// func (of *OfferHandler) ExpireCategoryOffer(c *gin.Context) {
+// 	id, err := strconv.Atoi(c.Query("id"))
+// 	if err != nil {
+// 		errorRes := response.ClientResponse(http.StatusBadRequest, "fields provided are in wrong format", nil, err.Error())
+// 		c.JSON(http.StatusBadRequest, errorRes)
+// 		return
+// 	}
 
-	if err := of.OfferUseCase.ExpireCategoryOffer(id); err != nil {
-		errorRes := response.ClientResponse(http.StatusBadRequest, "Coupon cannot be made invalid", nil, err.Error())
-		c.JSON(http.StatusBadRequest, errorRes)
-		return
-	}
+// 	if err := of.OfferUseCase.ExpireCategoryOffer(id); err != nil {
+// 		errorRes := response.ClientResponse(http.StatusBadRequest, "Coupon cannot be made invalid", nil, err.Error())
+// 		c.JSON(http.StatusBadRequest, errorRes)
+// 		return
+// 	}
 
-	successRes := response.ClientResponse(http.StatusOK, "Successfully made Coupon as invaid", nil, nil)
-	c.JSON(http.StatusOK, successRes)
+// 	successRes := response.ClientResponse(http.StatusOK, "Successfully made Coupon as invaid", nil, nil)
+// 	c.JSON(http.StatusOK, successRes)
 
-}
+// }
