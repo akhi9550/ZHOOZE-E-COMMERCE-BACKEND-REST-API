@@ -66,11 +66,11 @@ func AdminRoutes(r *gin.RouterGroup, adminHandler *handlers.AdminHandler, produc
 		{
 			offer.POST("/product-offer", offerHandler.AddProdcutOffer)
 			offer.GET("/product-offer", offerHandler.GetProductOffer)
-			// offer.DELETE("/product-offer", offerHandler.ExpireProductOffer)
+			offer.DELETE("/product-offer", offerHandler.ExpireProductOffer)
 
 			offer.POST("/category-offer", offerHandler.AddCategoryOffer)
 			offer.GET("/category-offer", offerHandler.GetCategoryOffer)
-			// offer.DELETE("/category-offer", offerHandler.ExpireCategoryOffer)
+			offer.DELETE("/category-offer", offerHandler.ExpireCategoryOffer)
 		}
 
 	}
