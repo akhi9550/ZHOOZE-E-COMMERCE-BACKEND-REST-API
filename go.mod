@@ -12,6 +12,7 @@ require (
 	github.com/google/wire v0.5.0
 	github.com/jinzhu/copier v0.4.0
 	github.com/joho/godotenv v1.5.1
+	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/razorpay/razorpay-go v1.2.0
 	github.com/spf13/viper v1.17.0
 	github.com/swaggo/files v1.0.1

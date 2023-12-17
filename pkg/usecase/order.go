@@ -7,19 +7,21 @@ import (
 	"Zhooze/pkg/utils/models"
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/jinzhu/copier"
+	"github.com/jung-kurt/gofpdf"
 )
 
 type orderUseCase struct {
 	orderRepository interfaces.OrderRepository
-	cartRepository interfaces.CartRepository
+	cartRepository  interfaces.CartRepository
 }
 
-func NewOrderUseCase(repository interfaces.OrderRepository,cartRepo interfaces.CartRepository) services.OrderUseCase {
+func NewOrderUseCase(repository interfaces.OrderRepository, cartRepo interfaces.CartRepository) services.OrderUseCase {
 	return &orderUseCase{
 		orderRepository: repository,
-		cartRepository: cartRepo,
+		cartRepository:  cartRepo,
 	}
 }
 func (or *orderUseCase) OrderItemsFromCart(orderFromCart models.OrderFromCart, userID int) (domain.OrderSuccessResponse, error) {
@@ -254,4 +256,101 @@ func (or *orderUseCase) CancelOrderFromAdmin(order_id int) error {
 		return err
 	}
 	return nil
+}
+func (or *orderUseCase) PrintInvoice(orderId int) (*gofpdf.Fpdf, error) {
+
+	if orderId < 1 {
+		return nil, errors.New("enter a valid order id")
+	}
+
+	order, err := or.orderRepository.GetDetailedOrderThroughId(orderId)
+	if err != nil {
+		return nil, err
+	}
+
+	items, err := or.orderRepository.GetItemsByOrderId(orderId)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println("order details ", order)
+	fmt.Println("itemssss", items)
+	fmt.Println("order status", order.ShipmentStatus)
+	if order.ShipmentStatus != "DELIVERED" {
+		return nil, errors.New("wait for the invoice until the product is received")
+	}
+
+	pdf := gofpdf.New("P", "mm", "A4", "")
+	pdf.AddPage()
+
+	pdf.SetFont("Arial", "B", 24)
+	pdf.SetTextColor(31, 73, 125)
+	pdf.Cell(0, 20, "Invoice")
+	pdf.Ln(20)
+
+	pdf.SetFont("Arial", "I", 14)
+	pdf.SetTextColor(51, 51, 51)
+	pdf.Cell(0, 10, "Customer Details")
+	pdf.Ln(10)
+	customerDetails := []string{
+		"Name: " + order.Firstname,
+		"House Name: " + order.HouseName,
+		"Street: " + order.Street,
+		"State: " + order.State,
+		"City: " + order.City,
+	}
+	for _, detail := range customerDetails {
+		pdf.Cell(0, 10, detail)
+		pdf.Ln(10)
+	}
+	pdf.Ln(10)
+
+	pdf.SetFont("Arial", "B", 16)
+	pdf.SetFillColor(217, 217, 217)
+	pdf.SetTextColor(0, 0, 0)
+	pdf.CellFormat(40, 10, "Item", "1", 0, "C", true, 0, "")
+	pdf.CellFormat(40, 10, "Price", "1", 0, "C", true, 0, "")
+	pdf.CellFormat(40, 10, "Quantity", "1", 0, "C", true, 0, "")
+	pdf.CellFormat(40, 10, "Total Price", "1", 0, "C", true, 0, "")
+	pdf.Ln(10)
+
+	pdf.SetFont("Arial", "", 12)
+	pdf.SetFillColor(255, 255, 255)
+	for _, item := range items {
+		pdf.CellFormat(40, 10, item.ProductName, "1", 0, "L", true, 0, "")
+		pdf.CellFormat(40, 10, "$"+strconv.FormatFloat(item.TotalPrice, 'f', 2, 64), "1", 0, "C", true, 0, "")
+		pdf.CellFormat(40, 10, strconv.Itoa(int(item.Quantity)), "1", 0, "C", true, 0, "")
+		pdf.CellFormat(40, 10, "$"+strconv.FormatFloat(item.TotalPrice, 'f', 2, 64), "1", 0, "C", true, 0, "")
+		pdf.Ln(10)
+	}
+	pdf.Ln(10)
+
+	var totalPrice float64
+	for _, item := range items {
+		totalPrice += item.TotalPrice
+	}
+
+	pdf.SetFont("Arial", "B", 16)
+	pdf.SetFillColor(217, 217, 217)
+	pdf.CellFormat(120, 10, "Total Price:", "1", 0, "R", true, 0, "")
+	pdf.CellFormat(40, 10, "$"+strconv.FormatFloat(totalPrice, 'f', 2, 64), "1", 0, "C", true, 0, "")
+	pdf.Ln(10)
+
+	OfferApplied := totalPrice - order.FinalPrice
+
+	fmt.Println("offer Applied", OfferApplied)
+
+	pdf.SetFont("Arial", "B", 16)
+	pdf.SetFillColor(217, 217, 217)
+	pdf.CellFormat(120, 10, "Offer Applied:", "1", 0, "R", true, 0, "")
+	pdf.CellFormat(40, 10, "$"+strconv.FormatFloat(OfferApplied, 'f', 2, 64), "1", 0, "C", true, 0, "")
+	pdf.Ln(10)
+
+	pdf.SetFont("Arial", "B", 16)
+	pdf.SetFillColor(217, 217, 217)
+	pdf.CellFormat(120, 10, "Final Amount:", "1", 0, "R", true, 0, "")
+	pdf.CellFormat(40, 10, "$"+strconv.FormatFloat(order.FinalPrice, 'f', 2, 64), "1", 0, "C", true, 0, "")
+	pdf.Ln(10)
+
+	return pdf, nil
 }

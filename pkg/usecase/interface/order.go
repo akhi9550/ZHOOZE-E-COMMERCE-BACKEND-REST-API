@@ -3,6 +3,8 @@ package interfaces
 import (
 	"Zhooze/pkg/domain"
 	"Zhooze/pkg/utils/models"
+
+	"github.com/jung-kurt/gofpdf"
 )
 
 type OrderUseCase interface {
@@ -15,4 +17,5 @@ type OrderUseCase interface {
 	GetAllOrderDetailsForAdmin(page, pagesize int) ([]models.CombinedOrderDetails, error)
 	ApproveOrder(orderId int) error
 	CancelOrderFromAdmin(order_id int) error
+	PrintInvoice(orderIdInt int) (*gofpdf.Fpdf, error)
 }

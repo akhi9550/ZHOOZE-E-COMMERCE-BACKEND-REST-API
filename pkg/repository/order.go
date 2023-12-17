@@ -532,3 +532,48 @@ func (or *orderRepository) UpdateHistory(userID, orderID int, amount float64, re
 	}
 	return nil
 }
+func (repo *orderRepository) GetDetailedOrderThroughId(orderId int) (models.CombinedOrderDetails, error) {
+	var body models.CombinedOrderDetails
+	query := `
+	SELECT 
+        o.id AS order_id,
+        o.final_price AS final_price,
+        o.shipment_status AS shipment_status,
+        o.payment_status AS payment_status,
+        u.firstname AS firstname,
+        u.email AS email,
+        u.phone AS phone,
+        a.house_name AS house_name,
+        a.street AS street,
+        a.city AS city,
+		a.state AS state,
+        a.pin AS pin
+	FROM orders o
+	JOIN users u ON o.user_id = u.id
+	JOIN addresses a ON o.address_id = a.id 
+	WHERE o.id = ?
+	`
+	if err := repo.DB.Raw(query, orderId).Scan(&body).Error; err != nil {
+		err = errors.New("error in getting detailed order through id in repository: " + err.Error())
+		return models.CombinedOrderDetails{}, err
+	}
+	fmt.Println("body in repo", body.OrderId)
+	return body, nil
+}
+
+func (o *orderRepository) GetItemsByOrderId(orderId int) ([]models.Invoice, error) {
+	var items []models.Invoice
+
+	query := `
+	SELECT oi.id AS order_id, oi.name, oi.quantity, oi.total_price, o.id AS id, o.created_at, o.final_price, o.shipment_status, o.payment_status
+	FROM orders o
+	JOIN order_items oi ON o.id = oi.order_id
+	WHERE o.id = ?;
+	`
+
+	if err := o.DB.Raw(query, orderId).Scan(&items).Error; err != nil {
+		return []models.Invoice{}, err
+	}
+
+	return items, nil
+}

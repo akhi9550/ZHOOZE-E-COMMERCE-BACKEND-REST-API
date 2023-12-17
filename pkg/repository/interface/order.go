@@ -56,4 +56,6 @@ type OrderRepository interface {
 	FindStock(id int) (int, error)
 	UpdateHistory(userID, orderID int, amount float64, reason string) error
 	UpdateAmountToWallet(userID int, amount float64) error
+	GetDetailedOrderThroughId(orderId int) (models.CombinedOrderDetails, error)
+	GetItemsByOrderId(orderId int) ([]models.Invoice, error)
 }

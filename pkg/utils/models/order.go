@@ -22,10 +22,13 @@ type OrderProducts struct {
 	Stock     int    `json:"stock"`
 }
 
-// type Invoice struct {
-// 	AddressInfo AddressInfoResponse
-// 	Cart        []Cart
-// }
+type Invoice struct {
+	ProductID     uint    `json:"product_id"`
+	ProductName   string  `json:"product_name"`
+	Quantity      float64 `json:"quantity"`
+	DiscountPrice float64 `json:"discount_price"`
+	TotalPrice    float64 `json:"total_price"`
+}
 type CombinedOrderDetails struct {
 	OrderId        string  `json:"order_id"`
 	FinalPrice     float64 `json:"final_price"`

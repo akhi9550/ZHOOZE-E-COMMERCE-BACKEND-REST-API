@@ -69,6 +69,8 @@ func UserRoutes(r *gin.RouterGroup, userHandler *handlers.UserHandler, otpHandle
 			order.GET("/checkout", orderHandler.CheckOut)
 			order.GET("/place-order", orderHandler.PlaceOrderCOD)
 			order.PUT("", orderHandler.CancelOrder)
+			order.GET("/print", orderHandler.PrintInvoice)
+
 		}
 		r.POST("/coupon/apply", couponHandler.ApplyCoupon)
 		r.GET("/referral/apply", userHandler.ApplyReferral)
