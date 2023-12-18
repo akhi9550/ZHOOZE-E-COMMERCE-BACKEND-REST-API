@@ -271,3 +271,59 @@ func (or *OrderHandler) PlaceOrderCOD(c *gin.Context) {
 		c.JSON(http.StatusOK, success)
 	}
 }
+
+// @Summary		Checkout section
+// @Description	Print Purchase Invoice
+// @Tags			User Order Management
+// @Accept			json
+// @Produce		    json
+// @Security		Bearer
+// @Param   order_id  query string true "order_id"
+// @Success		200	{object}	response.Response{}
+// @Failure		500	{object}	response.Response{}
+// @Router			/user/order/print     [GET]
+func (or *OrderHandler) PrintInvoice(c *gin.Context) {
+	orderId := c.Query("order_id")
+	orderIdInt, err := strconv.Atoi(orderId)
+	if err != nil {
+		err = errors.New("error in coverting order id" + err.Error())
+		errRes := response.ClientResponse(http.StatusBadGateway, "error in reading the order id", nil, err)
+		c.JSON(http.StatusBadRequest, errRes)
+		return
+	}
+	pdf, err := or.orderUseCase.PrintInvoice(orderIdInt)
+	fmt.Println("error ", err)
+	if err != nil {
+		errRes := response.ClientResponse(http.StatusBadGateway, "error in printing the invoice", nil, err.Error())
+		c.JSON(http.StatusBadRequest, errRes)
+		return
+	}
+
+	c.Header("Content-Disposition", "attachment;filename=invoice.pdf")
+
+	pdfFilePath := "salesReport/invoice.pdf"
+
+	err = pdf.OutputFileAndClose(pdfFilePath)
+	if err != nil {
+		errRes := response.ClientResponse(http.StatusBadGateway, "error in printing invoice", nil, err)
+		c.JSON(http.StatusBadRequest, errRes)
+		return
+	}
+
+	c.Header("Content-Disposition", "attachment; filename=sales_report.pdf")
+	c.Header("Content-Type", "application/pdf")
+
+	c.File(pdfFilePath)
+
+	c.Header("Content-Type", "application/pdf")
+
+	err = pdf.Output(c.Writer)
+	if err != nil {
+		errRes := response.ClientResponse(http.StatusBadGateway, "error in printing invoice", nil, err)
+		c.JSON(http.StatusBadRequest, errRes)
+		return
+	}
+
+	successRes := response.ClientResponse(http.StatusOK, "the request was succesful", pdf, nil)
+	c.JSON(http.StatusOK, successRes)
+}
