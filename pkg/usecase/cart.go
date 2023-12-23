@@ -55,7 +55,6 @@ func (cr *cartUseCase) AddToCart(product_id int, user_id int) (models.CartRespon
 
 		return models.CartResponse{}, err
 	}
-	/////////////
 	discount_percentage, err := cr.offerRepository.FindDiscountPercentageForProduct(product_id)
 	if err != nil {
 		return models.CartResponse{}, errors.New("there was some error in finding the discounted prices")
@@ -82,7 +81,6 @@ func (cr *cartUseCase) AddToCart(product_id int, user_id int) (models.CartRespon
 	}
 
 	FinalPrice := Price - discountcategory
-	//////////////////////
 	if QuantityOfProductInCart == 0 {
 		err := cr.cartRepository.AddItemIntoCart(user_id, product_id, 1, FinalPrice)
 		if err != nil {
