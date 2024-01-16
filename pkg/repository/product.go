@@ -221,3 +221,20 @@ func (pr *productRepository) GetImage(productID int) ([]string, error) {
 	return url, nil
 
 }
+func (pr *productRepository) GetInventory(prefix string) ([]models.ProductBrief, error) {
+	var productDetails []models.ProductBrief
+
+	query := `
+	SELECT i.*
+	FROM products i
+	LEFT JOIN categories c ON i.category_id = c.id
+	WHERE i.product_name ILIKE '%' || $1 || '%'
+    OR c.category ILIKE '%' || $1 || '%';
+
+`
+	if err := pr.DB.Raw(query, prefix).Scan(&productDetails).Error; err != nil {
+		return []models.ProductBrief{}, err
+	}
+
+	return productDetails, nil
+}

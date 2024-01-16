@@ -5,6 +5,7 @@ import (
 	"Zhooze/pkg/helper"
 	interfaces "Zhooze/pkg/repository/interface"
 	services "Zhooze/pkg/usecase/interface"
+	"strings"
 
 	"Zhooze/pkg/utils/models"
 	"errors"
@@ -240,4 +241,26 @@ func (pr *productUseCase) ShowImages(productID int) ([]models.Image, error) {
 		return nil, err
 	}
 	return image, nil
+}
+func (pr *productUseCase) SearchProductsOnPrefix(prefix string) ([]models.ProductBrief, error) {
+
+	inventoryList, err := pr.productRepository.GetInventory(prefix)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var filteredProducts []models.ProductBrief
+
+	for _, product := range inventoryList {
+		if strings.HasPrefix(strings.ToLower(product.Name), strings.ToLower(prefix)) {
+			filteredProducts = append(filteredProducts, product)
+		}
+	}
+
+	if len(filteredProducts) == 0 {
+		return nil, errors.New("no items matching your keyword")
+	}
+
+	return filteredProducts, nil
 }

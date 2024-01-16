@@ -48,3 +48,6 @@ type ProductUpdateReciever struct {
 	ProductID int
 	Stock     int
 }
+type SearchItems struct {
+    ProductName string `json:"product_name"`
+}

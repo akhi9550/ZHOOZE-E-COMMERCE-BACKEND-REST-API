@@ -29,8 +29,9 @@ func AdminRoutes(r *gin.RouterGroup, adminHandler *handlers.AdminHandler, produc
 		{
 			products.GET("", productHandler.ShowAllProductsFromAdmin)
 			products.POST("", productHandler.AddProducts)
-			products.PUT("", productHandler.UpdateProduct) //update the product quantity
+			products.PUT("", productHandler.UpdateProduct)
 			products.DELETE("", productHandler.DeleteProducts)
+			products.GET("/search", productHandler.SearchProducts)
 			products.POST("/upload-image", productHandler.UploadImage)
 		}
 

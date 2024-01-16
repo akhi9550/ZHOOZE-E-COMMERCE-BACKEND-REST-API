@@ -24,4 +24,5 @@ type ProductRepository interface {
 	UpdateProductImage(productID int, url string) error
 	DisplayImages(productID int) (domain.Product, []domain.Image, error)
 	ShowImages(productID int) ([]models.Image, error)
+	GetInventory(prefix string) ([]models.ProductBrief, error)
 }

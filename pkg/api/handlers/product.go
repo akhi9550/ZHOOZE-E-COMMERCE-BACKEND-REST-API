@@ -118,6 +118,37 @@ func (pt *ProductHandler) ShowAllProductsFromAdmin(c *gin.Context) {
 	c.JSON(http.StatusOK, success)
 }
 
+// @Summary Get Products Details
+// @Tags Admin Product Management
+// @Description Search for a product
+// @Accept json
+// @Produce json
+// @Security Bearer
+// @Param prefix body models.SearchItems  true "Product details"
+// @Success 200 {object} response.Response{}
+// @Failure 500 {object} response.Response{}
+// @Router /admin/products/search  [GET]
+func (pt *ProductHandler) SearchProducts(c *gin.Context) {
+
+	var prefix models.SearchItems
+
+	if err := c.ShouldBindJSON(&prefix); err != nil {
+		errRes := response.ClientResponse(http.StatusBadRequest, "fields are provided in wrong format", nil, err.Error())
+		c.JSON(http.StatusBadRequest, errRes)
+		return
+	}
+
+	productDetails, err := pt.ProductUseCase.SearchProductsOnPrefix(prefix.ProductName)
+
+	if err != nil {
+		errRes := response.ClientResponse(http.StatusInternalServerError, "could not retrive products by prefix search", nil, err.Error())
+		c.JSON(http.StatusInternalServerError, errRes)
+		return
+	}
+	successRes := response.ClientResponse(http.StatusOK, "Successfully retrived all details", productDetails, nil)
+	c.JSON(http.StatusOK, successRes)
+}
+
 // @Summary Add Products
 // @Description Add product from admin side
 // @Tags Admin Product Management
