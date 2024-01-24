@@ -1,0 +1,55 @@
+name: CI CD -Zhooze
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.20.2
+
+      - name: Install Make
+        run: |
+          sudo apt update
+          sudo apt install -y make
+
+      # testing
+      - name: Test
+        run: make test
+
+      # TODO: fix all lint and security errors from codebase
+      # lint checking - ( check desgin patterns ) ( alternative to go lint )
+      # - name: install staticcheck
+      #   run: |
+      #     go install honnef.co/go/tools/cmd/staticcheck@latest
+      #     staticcheck ./...
+
+      # ci security
+      # - name: install gosec
+      #   run: |
+      #     go install github.com/securego/gosec/v2/cmd/gosec@
+      #     gosec ./...
+
+      - name: Deploy to AWS EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{secrets.EC2_PUBLIC_IP}}
+          username: ubuntu
+          key: ${{secrets.EC2_SSH_KEY}}
+          script: |
+            echo "Connected to AWS EC2 instance"
+            cd Zhooze-Ecommerce_CleanArchitecture
+            git pull
+            go build -o api ./cmd/api
+            sudo systemctl restart go_app.service
