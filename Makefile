@@ -1,6 +1,9 @@
-run:
+run:  ##Run Code
 	go run ./cmd/api/main.go
 
 
-swag: 
+swag: ##Run Swagger
 	swag init -g main.go -o ./cmd/api/docs
+
+test: ## Run Tests
+	test ./... -cover
