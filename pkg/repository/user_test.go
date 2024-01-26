@@ -26,18 +26,18 @@ func TestUserSignUp(t *testing.T) {
 		{
 			name: "success signup user",
 			args: args{
-				input: models.UserSignUp{Firstname: "Akhil", Lastname: "c", Email: "zhooze.9550@gmail.com", Password: "12345", Phone: "7565748990"},
+				input: models.UserSignUp{Firstname: "akhil", Lastname: "c", Email: "zhooze.9550@gmail.com", Password: "12345", Phone: "7565748990"},
 			},
 			beforeTest: func(mockSQL sqlmock.Sqlmock) {
-				expectedQuery := `^INSERT INTO users \(firstname,lastname,email,password,phone\) VALUES \(\$1,\$2,\$3,\$4,\$5\) RETURNING id,firstname,lastname,email,phone$`
+				expectedQuery := `INSERT INTO users(firstname,lastname,email,password,phone)VALUES(?,?,?,?,?)RETURNING id,firstname,lastname,email,password,phone`
 				mockSQL.ExpectQuery(expectedQuery).
-					WithArgs("Akhil", "c", "zhooze.9550@gmail.com", "12345", "7565748990").
+					WithArgs("akhil", "c", "zhooze.9550@gmail.com", "12345", "7565748990").
 					WillReturnRows(sqlmock.NewRows([]string{"id", "firstname", "lastname", "email", "phone"}).
 						AddRow(1, "Akhil", "c", "zhooze.9550@gmail.com", "7565748990"))
 			},
 			want: models.UserDetailsResponse{
 				Id:        1,
-				Firstname: "Akhil",
+				Firstname: "akhil",
 				Lastname:  "c",
 				Email:     "zhooze.9550@gmail.com",
 				Phone:     "7565748990",
@@ -50,7 +50,7 @@ func TestUserSignUp(t *testing.T) {
 				input: models.UserSignUp{Firstname: "", Lastname: "", Email: "", Password: "", Phone: ""},
 			},
 			beforeTest: func(mockSQL sqlmock.Sqlmock) {
-				expectedQuery := `^INSERT INTO users \(firstname,lastname,email,password,phone\) VALUES \(\$1,\$2,\$3,\$4,\$5\) RETURNING id,firstname,lastname,email,phone$`
+				expectedQuery := `INSERT INTO users(firstname,lastname,email,password,phone)VALUES(?,?,?,?,?)RETURNING id,firstname,lastname,email,password,phone`
 				mockSQL.ExpectQuery(expectedQuery).
 					WithArgs("", "", "", "", "").
 					WillReturnError(errors.New("email should be unique"))
