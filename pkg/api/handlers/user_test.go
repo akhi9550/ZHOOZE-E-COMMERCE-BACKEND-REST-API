@@ -18,8 +18,8 @@ import (
 
 func Test_UserSignup(t *testing.T) {
 	testCase := map[string]struct {
-		input         interface{}
-		buildStub     func(useCaseMock *mockUseCase.MockUserUseCase, signup interface{})
+		input         models.UserSignUp
+		buildStub     func(useCaseMock *mockUseCase.MockUserUseCase, signupData models.UserSignUp)
 		checkResponse func(t *testing.T, responseRecorder *httptest.ResponseRecorder)
 	}{
 		"Valid Signup": {
@@ -29,8 +29,9 @@ func Test_UserSignup(t *testing.T) {
 				Email:     "akhilc89@gmail.com",
 				Password:  "908765",
 				Phone:     "9087675645",
+				ReferralCode: "659823",
 			},
-			buildStub: func(useCaseMock *mockUseCase.MockUserUseCase, signupData interface{}) {
+			buildStub: func(useCaseMock *mockUseCase.MockUserUseCase, signupData models.UserSignUp) {
 				err := validator.New().Struct(signupData)
 				if err != nil {
 					fmt.Println("validation failed")
@@ -43,8 +44,8 @@ func Test_UserSignup(t *testing.T) {
 						Email:     "akhil89@gmail.com",
 						Phone:     "9087675645",
 					},
-					AccessToken:  "adfsaethjjshahfiurhfajherkuefeu",
-					RefreshToken: "fkdgkerjrijigsiejggjrlisjgjisg",
+					AccessToken:  "adfsae.thjjshahfiurhf.ajherkuefeu",
+					RefreshToken: "fkdgker.jrijigsiejggj.rlisjgjisg3",
 				}, nil)
 			},
 			checkResponse: func(t *testing.T, responseRecorder *httptest.ResponseRecorder) {
@@ -77,4 +78,7 @@ func Test_UserSignup(t *testing.T) {
 
 		})
 	}
+}
+func Test_AddAddress(t *testing.T){
+
 }
