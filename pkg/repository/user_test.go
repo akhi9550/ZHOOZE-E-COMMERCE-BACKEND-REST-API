@@ -142,3 +142,63 @@ func Test_FindUserByEmail(t *testing.T) {
 	}
 
 }
+func Test_EditPhone(t *testing.T) {
+	tests := []struct {
+		name string
+		args struct {
+			id    int
+			phone string
+		}
+		stub    func(sqlmock.Sqlmock)
+		wantErr bool
+	}{
+		{
+			name: "success",
+			args: struct {
+				id    int
+				phone string
+			}{id: 1, phone: "9282246077"},
+			stub: func(mockSQL sqlmock.Sqlmock) {
+				mockSQL.ExpectExec("UPDATE users SET phone = ? WHERE id = ?").
+					WithArgs("9282246077", 1).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+
+			},
+			wantErr: false,
+		},
+		{
+			name: "error",
+			args: struct {
+				id    int
+				phone string
+			}{id: 1, phone: "9282246077"},
+			stub: func(mockSQL sqlmock.Sqlmock) {
+				mockSQL.ExpectExec("UPDATE users SET phone = ? WHERE id = ?").
+					WithArgs("9282246077", 1).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockDB, mockSQL, _ := sqlmock.New()
+			defer mockDB.Close()
+
+			gormDB, _ := gorm.Open(postgres.New(postgres.Config{
+				Conn: mockDB,
+			}), &gorm.Config{})
+
+			tt.stub(mockSQL)
+			u := NewUserRepository(gormDB)
+
+			err := u.UpdateUserPhone(tt.args.phone, tt.args.id)
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("EditPhone() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
