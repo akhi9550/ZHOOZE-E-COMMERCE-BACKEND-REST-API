@@ -3,6 +3,7 @@ package repository
 import (
 	"Zhooze/pkg/utils/models"
 	"errors"
+	"reflect"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -11,63 +12,121 @@ import (
 	"gorm.io/gorm"
 )
 
-//	func TestUserSignUp(t *testing.T) {
-//		type args struct {
-//			input models.UserSignUp
-//		}
-//		tests := []struct {
-//			name       string
-//			args       args
-//			beforeTest func(sqlmock.Sqlmock)
-//			want       models.UserDetailsResponse
-//			wantErr    error
-//		}{
-//			{
-//				name: "success signup user",
-//				args: args{
-//					input: models.UserSignUp{Firstname: "Akhil", Lastname: "c", Email: "zhooze.9550@gmail.com", Phone: "7565748990", Password: "12345"},
-//				},
-//				beforeTest: func(mockSQL sqlmock.Sqlmock) {
-//					expectedQuery := `^INSERT INTO users (.+)$`
-//					mockSQL.ExpectQuery(expectedQuery).WithArgs("Akhil", "c", "zhooze.9550@gmail.com", "7565748990", "678790").
-//						WillReturnRows(sqlmock.NewRows([]string{"id", "firstname", "lastname", "email", "phone"}).
-//							AddRow(1, "Akhil", "c", "zhooze.9550@gmail.com", "12345", "7565748990"))
-//				},
-//				want:    models.UserDetailsResponse{Id: 1, Firstname: "Akhil", Lastname: "c", Email: "zhooze.9550@gmail.com", Phone: "7565748990"},
-//				wantErr: nil,
-//			},
-//			{
-//				name: "error signup user",
-//				args: args{
-//					input: models.UserSignUp{Firstname: "", Lastname: "", Email: "", Phone: "", Password: ""},
-//				},
-//				beforeTest: func(mockSQL sqlmock.Sqlmock) {
-//					expectedQuery := "Query '(?i)^INSERT INTO users (firstname,lastname,email,password,phone)VALUES($1,$2,$3,$4,$5)RETURNING id,firstname,lastname,email,password,phone$'"
-//					mockSQL.ExpectQuery(expectedQuery).WithArgs("Akhil", "c", "zhooze.9550@gmail.com", "678790", "7565748990").
-//						WillReturnRows(sqlmock.NewRows([]string{}).AddRow()).
-//						WillReturnError(errors.New("email should be unique"))
-//				},
-//				want:    models.UserDetailsResponse{},
-//				wantErr: errors.New("email should be unique"),
-//			},
-//		}
-//		for _, tt := range tests {
-//			t.Run(tt.name, func(t *testing.T) {
-//				mockDB, mockSQL, _ := sqlmock.New()
-//				defer mockDB.Close()
-//				gormDB, _ := gorm.Open(postgres.New(postgres.Config{
-//					Conn: mockDB,
-//				}), &gorm.Config{})
-//				tt.beforeTest(mockSQL)
-//				u := NewUserRepository(gormDB)
-//				got, err := u.UserSignUp(tt.args.input)
-//				assert.Equal(t, tt.wantErr, err)
-//				if !reflect.DeepEqual(got, tt.want) {
-//					t.Errorf("userRepo.UserSignUp() = %v, want %v", got, tt.want)
-//				}
-//			})
-//		}
-//	}
+func TestUserSignUp(t *testing.T) {
+	type args struct {
+		input models.UserSignUp
+	}
+	tests := []struct {
+		name       string
+		args       args
+		beforeTest func(mockSQL sqlmock.Sqlmock)
+		want       models.UserDetailsResponse
+		wantErr    error
+	}{
+		{
+			name: "success signup user",
+			args: args{
+				input: models.UserSignUp{Firstname: "Akhil", Lastname: "c", Email: "zhooze.9550@gmail.com", Password: "12345", Phone: "7565748990"},
+			},
+			beforeTest: func(mockSQL sqlmock.Sqlmock) {
+				expectedQuery := `^INSERT INTO users \(firstname,lastname,email,password,phone\) VALUES \(\$1,\$2,\$3,\$4,\$5\) RETURNING id,firstname,lastname,email,phone$`
+				mockSQL.ExpectQuery(expectedQuery).
+					WithArgs("Akhil", "c", "zhooze.9550@gmail.com", "12345", "7565748990").
+					WillReturnRows(sqlmock.NewRows([]string{"id", "firstname", "lastname", "email", "phone"}).
+						AddRow(1, "Akhil", "c", "zhooze.9550@gmail.com", "7565748990"))
+			},
+			want: models.UserDetailsResponse{
+				Id:        1,
+				Firstname: "Akhil",
+				Lastname:  "c",
+				Email:     "zhooze.9550@gmail.com",
+				Phone:     "7565748990",
+			},
+			wantErr: nil,
+		},
+		{
+			name: "error signup user",
+			args: args{
+				input: models.UserSignUp{Firstname: "", Lastname: "", Email: "", Password: "", Phone: ""},
+			},
+			beforeTest: func(mockSQL sqlmock.Sqlmock) {
+				expectedQuery := `^INSERT INTO users \(firstname,lastname,email,password,phone\) VALUES \(\$1,\$2,\$3,\$4,\$5\) RETURNING id,firstname,lastname,email,phone$`
+				mockSQL.ExpectQuery(expectedQuery).
+					WithArgs("", "", "", "", "").
+					WillReturnError(errors.New("email should be unique"))
+			},
+			want:    models.UserDetailsResponse{},
+			wantErr: errors.New("email should be unique"),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockDB, mockSQL, _ := sqlmock.New()
+			defer mockDB.Close()
+			gormDB, _ := gorm.Open(postgres.New(postgres.Config{
+				Conn: mockDB,
+			}), &gorm.Config{})
+			tt.beforeTest(mockSQL)
+			u := NewUserRepository(gormDB)
+			got, err := u.UserSignUp(tt.args.input)
+			assert.Equal(t, tt.wantErr, err)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("userRepo.UserSignUp() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+func Test_GetUserDetails(t *testing.T) {
+	tests := []struct {
+		name    string
+		args    int
+		stub    func(mockSQL sqlmock.Sqlmock)
+		want    models.UsersProfileDetails
+		wantErr error
+	}{
+		{
+			name: "success",
+			args: 1,
+			stub: func(mockSQL sqlmock.Sqlmock) {
+				expectQuery := `^SELECT firstname\\,lastname\\,email\\,phone FROM users (.+)$\`
+				mockSQL.ExpectQuery(expectQuery).WillReturnRows(sqlmock.NewRows([]string{"firstname", "lastname", "email", "phone"}).AddRow("akhil", "c", "akhil89@gmail.com", "9087678564"))
+			},
+			want: models.UsersProfileDetails{
+				Firstname: "akhil",
+				Lastname:  "c",
+				Email:     "akhil89@gmail.com",
+				Phone:     "9087678564",
+			},
+			wantErr: nil,
+		},
+		{
+			name: "error",
+			args: 1,
+			stub: func(mockSQL sqlmock.Sqlmock) {
+				expectQuery := `^SELECT firstname\\,lastname\\,email\\,phone FROM users (.+)$\`
+				mockSQL.ExpectQuery(expectQuery).WillReturnError(errors.New("error"))
+			},
+			want:    models.UsersProfileDetails{},
+			wantErr: errors.New("could not get user details"),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockDB, mockSQL, _ := sqlmock.New()
+			defer mockDB.Close()
+			gormDB, _ := gorm.Open(postgres.New(postgres.Config{
+				Conn: mockDB,
+			}), &gorm.Config{})
+			tt.stub(mockSQL)
+			u := NewUserRepository(gormDB)
+			result, err := u.UserDetails(tt.args)
+			assert.Equal(t, tt.want, result)
+			assert.Equal(t, tt.wantErr, err)
+		})
+	}
+}
+
 func Test_FindUserByEmail(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -142,43 +201,40 @@ func Test_FindUserByEmail(t *testing.T) {
 	}
 
 }
-func Test_EditPhone(t *testing.T) {
+func Test_FindIdFromPhone(t *testing.T) {
 	tests := []struct {
-		name string
-		args struct {
-			id    int
-			phone string
-		}
+		name    string
+		args    string
 		stub    func(sqlmock.Sqlmock)
-		wantErr bool
+		want    int
+		wantErr error
 	}{
 		{
 			name: "success",
-			args: struct {
-				id    int
-				phone string
-			}{id: 1, phone: "9282246077"},
+			args: "9087678909",
 			stub: func(mockSQL sqlmock.Sqlmock) {
-				mockSQL.ExpectExec("UPDATE users SET phone = ? WHERE id = ?").
-					WithArgs("9282246077", 1).
-					WillReturnResult(sqlmock.NewResult(1, 1))
+				expectedQuery := `^SELECT id FROM users(.+)$`
+				mockSQL.ExpectQuery(expectedQuery).
+					WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
 
 			},
-			wantErr: false,
+			want:    1,
+			wantErr: nil,
 		},
 		{
 			name: "error",
-			args: struct {
-				id    int
-				phone string
-			}{id: 1, phone: "9282246077"},
+			args: "9087678909",
 			stub: func(mockSQL sqlmock.Sqlmock) {
-				mockSQL.ExpectExec("UPDATE users SET phone = ? WHERE id = ?").
-					WithArgs("9282246077", 1).
-					WillReturnResult(sqlmock.NewResult(1, 1))
+
+				expectedQuery := `^SELECT id FROM users(.+)$`
+
+				mockSQL.ExpectQuery(expectedQuery).
+					WillReturnError(errors.New("error"))
 
 			},
-			wantErr: true,
+
+			want:    0,
+			wantErr: errors.New("error"),
 		},
 	}
 
@@ -194,11 +250,9 @@ func Test_EditPhone(t *testing.T) {
 			tt.stub(mockSQL)
 			u := NewUserRepository(gormDB)
 
-			err := u.UpdateUserPhone(tt.args.phone, tt.args.id)
-
-			if (err != nil) != tt.wantErr {
-				t.Errorf("EditPhone() error = %v, wantErr %v", err, tt.wantErr)
-			}
+			result, err := u.FindIdFromPhone(tt.args)
+			assert.Equal(t, tt.want, result)
+			assert.Equal(t, tt.wantErr, err)
 		})
 	}
 }
