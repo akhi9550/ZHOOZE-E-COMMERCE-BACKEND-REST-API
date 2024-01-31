@@ -5,5 +5,5 @@ run:  ##Run Code
 swag: ##Run Swagger
 	swag init -g main.go -o ./cmd/api/docs
 
-test: ## Run Tests
-	test ./... -cover
+test:
+	go test ./... -cover
