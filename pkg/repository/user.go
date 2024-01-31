@@ -45,7 +45,7 @@ func (ur *userRepository) UserSignUp(user models.UserSignUp) (models.UserDetails
 	var SignupDetail models.UserDetailsResponse
 	err := ur.DB.Raw(`INSERT INTO users(firstname,lastname,email,password,phone)VALUES(?,?,?,?,?)RETURNING id,firstname,lastname,email,password,phone`, user.Firstname, user.Lastname, user.Email, user.Password, user.Phone).Scan(&SignupDetail).Error
 	if err != nil {
-		return models.UserDetailsResponse{}, err
+		return models.UserDetailsResponse{}, errors.New("email should be unique")
 	}
 	return SignupDetail, nil
 }
@@ -82,7 +82,7 @@ func (ur *userRepository) UserDetails(userID int) (models.UsersProfileDetails, e
 	var userDetails models.UsersProfileDetails
 	err := ur.DB.Raw("SELECT u.firstname,u.lastname,u.email,u.phone FROM users u WHERE u.id = ?", userID).Row().Scan(&userDetails.Firstname, &userDetails.Lastname, &userDetails.Email, &userDetails.Phone)
 	if err != nil {
-		return models.UsersProfileDetails{}, err
+		return models.UsersProfileDetails{}, errors.New("could not get user details")
 	}
 	return userDetails, nil
 }
