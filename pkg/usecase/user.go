@@ -132,7 +132,7 @@ func (ur *userUseCase) UsersLogin(user models.LoginDetail) (*models.TokenUser, e
 func (ur *userUseCase) AddAddress(userID int, address models.AddressInfo) error {
 	err := ur.userRepository.AddAddress(userID, address)
 	if err != nil {
-		return err
+		return errors.New("could not add the address")
 	}
 	return nil
 }

@@ -52,4 +52,4 @@ jobs:
             cd Zhooze-Ecommerce_CleanArchitecture
             git pull
             go build -o api ./cmd/api
-            sudo systemctl restart go_app.service
+            sudo systemctl restart myapp.service
