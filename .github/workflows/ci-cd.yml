@@ -28,19 +28,7 @@ jobs:
       - name: Test
         run: make test
 
-      # TODO: fix all lint and security errors from codebase
-      # lint checking - ( check desgin patterns ) ( alternative to go lint )
-      # - name: install staticcheck
-      #   run: |
-      #     go install honnef.co/go/tools/cmd/staticcheck@latest
-      #     staticcheck ./...
-
-      # ci security
-      # - name: install gosec
-      #   run: |
-      #     go install github.com/securego/gosec/v2/cmd/gosec@
-      #     gosec ./...
-
+        #EC2 instance
       - name: Deploy to AWS EC2
         uses: appleboy/ssh-action@master
         with:

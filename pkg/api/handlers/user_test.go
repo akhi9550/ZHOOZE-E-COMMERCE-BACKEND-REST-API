@@ -1,10 +1,11 @@
 package handlers
 
 import (
-	"Zhooze/pkg/mock/mockUseCase"
+	mockUseCase "Zhooze/pkg/mock/mockUseCase"
 	"Zhooze/pkg/utils/models"
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -52,6 +53,29 @@ func Test_UserSignup(t *testing.T) {
 				assert.Equal(t, http.StatusCreated, responseRecorder.Code)
 			},
 		},
+		"user couldnot sign up": {
+			input: models.UserSignUp{
+				Firstname:    "akhil",
+				Lastname:     "c",
+				Email:        "akhilc89@gmail.com",
+				Password:     "908765",
+				Phone:        "+919087675645",
+				ReferralCode: "659823",
+			},
+			buildStub: func(useCaseMock *mockUseCase.MockUserUseCase, signupData models.UserSignUp) {
+				// copying signupData to domain.user for pass to Mock usecase
+				err := validator.New().Struct(signupData)
+				if err != nil {
+					fmt.Println("validation failed")
+				}
+
+				useCaseMock.EXPECT().UsersSignUp(signupData).Times(1).Return(&models.TokenUser{}, errors.New("cannot sign up"))
+			},
+			checkResponse: func(t *testing.T, responseRecorder *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusBadRequest, responseRecorder.Code)
+
+			},
+		},
 	}
 	for testName, test := range testCase {
 		test := test
@@ -80,69 +104,75 @@ func Test_UserSignup(t *testing.T) {
 	}
 }
 
-// func Test_AddAddress(t *testing.T) {
-// 	testCase := map[string]struct {
-// 		buildStub     func(useCaseMock *mockUseCase.MockUserUseCase)
-// 		checkResponse func(t *testing.T, responseRecorder *httptest.ResponseRecorder)
-// 		expected      []domain.Address
-// 	}{
-// 		"successfull": {
-// 			buildStub: func(useCaseMock *mockUseCase.MockUserUseCase) {
-
-// 				useCaseMock.EXPECT().GetAllAddress(1).Times(1).Return([]domain.Address{}, nil)
-// 			},
-// 			checkResponse: func(t *testing.T, responseRecorder *httptest.ResponseRecorder) {
-// 				assert.Equal(t, http.StatusOK, responseRecorder.Code)
-
-// 			},
-// 		},
-// 		"parameter problem": {
-// 			buildStub: func(useCaseMock *mockUseCase.MockUserUseCase) {
-// 			},
-// 			checkResponse: func(t *testing.T, responseRecorder *httptest.ResponseRecorder) {
-// 				assert.Equal(t, http.StatusBadRequest, responseRecorder.Code)
-
-// 			},
-// 		},
-// 		"error retrieving records": {
-// 			buildStub: func(useCaseMock *mockUseCase.MockUserUseCase) {
-
-// 				useCaseMock.EXPECT().GetAllAddress(1).Times(1).Return(nil, errors.New("error retrieving records"))
-// 			},
-// 			checkResponse: func(t *testing.T, responseRecorder *httptest.ResponseRecorder) {
-// 				assert.Equal(t, http.StatusBadRequest, responseRecorder.Code)
-
-// 			},
-// 		},
-// 	}
-
-// 	for testName, test := range testCase {
-// 		testName := testName
-// 		test := test
-// 		t.Run(testName, func(t *testing.T) {
-// 			t.Parallel()
-// 			ctrl := gomock.NewController(t)
-// 			mockUseCase := mockUseCase.NewMockUserUseCase(ctrl)
-// 			test.buildStub(mockUseCase)
-
-// 			userHandler := NewUserHandler(mockUseCase)
-
-// 			server := gin.Default()
-// 			server.POST("/getAddresses", userHandler.GetAllAddress)
-
-// 			mockRequest, err := http.NewRequest(http.MethodGet, "id=1", nil)
-// 			assert.NoError(t, err)
-// 			if testName == "parameter problem" {
-// 				mockRequest, err = http.NewRequest(http.MethodGet, "id=invalid", nil)
-// 				assert.NoError(t, err)
-// 			}
-// 			responseRecorder := httptest.NewRecorder()
-
-// 			server.ServeHTTP(responseRecorder, mockRequest)
-
-// 			test.checkResponse(t, responseRecorder)
-
-// 		})
-
-// 	}
-// }
+func Test_LoginHandler(t *testing.T) {
+	testCase := map[string]struct {
+		input         models.LoginDetail
+		buildStub     func(useCaseMock *mockUseCase.MockUserUseCase, login models.LoginDetail)
+		checkResponse func(t *testing.T, responseRecorder *httptest.ResponseRecorder)
+	}{
+		"Success": {
+			input: models.LoginDetail{
+				Email:    "akhilc23@gmail.com",
+				Password: "898989",
+			},
+			buildStub: func(useCaseMock *mockUseCase.MockUserUseCase, login models.LoginDetail) {
+				err := validator.New().Struct(login)
+				if err != nil {
+					fmt.Println("validation failed")
+				}
+				useCaseMock.EXPECT().UsersLogin(login).Times(1).Return(&models.TokenUser{
+					Users: models.UserDetailsResponse{
+						Id:        1,
+						Firstname: "akhil",
+						Lastname:  "c",
+						Email:     "akhilc23@gmail.com",
+						Phone:     "+919856123585",
+					},
+					AccessToken:  "tyhddfgfh.djdudhfffdf.isjjrhfhfs",
+					RefreshToken: "lpoiisjaf.pidfs9d8fsf.sddddffsff",
+				}, nil)
+			},
+			checkResponse: func(t *testing.T, responseRecorder *httptest.ResponseRecorder) {
+				if responseRecorder.Code != http.StatusOK && responseRecorder.Code != http.StatusCreated {
+					t.Errorf("unexpected status code: %d", responseRecorder.Code)
+				}
+			},
+		},
+		"user couldn't login": {
+			input: models.LoginDetail{
+				Email:    "akhilc23@gmail.com",
+				Password: "no password",
+			},
+			buildStub: func(useCaseMock *mockUseCase.MockUserUseCase, login models.LoginDetail) {
+				err := validator.New().Struct(login)
+				if err != nil {
+					fmt.Println("validation failed")
+				}
+				useCaseMock.EXPECT().UsersLogin(login).Times(1).Return(&models.TokenUser{}, errors.New("cannot login up"))
+			},
+			checkResponse: func(t *testing.T, responseRecorder *httptest.ResponseRecorder) {
+				assert.Equal(t, http.StatusBadRequest, responseRecorder.Code)
+			},
+		},
+	}
+	for testName, test := range testCase {
+		test := test
+		t.Run(testName, func(t *testing.T) {
+			t.Parallel()
+			ctrl := gomock.NewController(t)
+			mockUseCase := mockUseCase.NewMockUserUseCase(ctrl)
+			test.buildStub(mockUseCase, test.input)
+			UserHandler := NewUserHandler(mockUseCase)
+			server := gin.Default()
+			server.POST("/login", UserHandler.Userlogin)
+			jsonData, err := json.Marshal(test.input)
+			assert.NoError(t, err)
+			body := bytes.NewBuffer(jsonData)
+			mockRequest, err := http.NewRequest(http.MethodPost, "/login", body)
+			assert.NoError(t, err)
+			responseRecorder := httptest.NewRecorder()
+			server.ServeHTTP(responseRecorder, mockRequest)
+			test.checkResponse(t, responseRecorder)
+		})
+	}
+}
