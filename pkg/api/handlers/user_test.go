@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	mockUseCase "Zhooze/pkg/mock/mockUseCase"
+	"Zhooze/pkg/mock/mockUseCase"
 	"Zhooze/pkg/utils/models"
 	"bytes"
 	"encoding/json"

@@ -2,11 +2,9 @@ name: CI CD -Zhooze
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
   pull_request:
-    branches:
-      - main
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -19,16 +17,14 @@ jobs:
         with:
           go-version: 1.21.2
 
-      - name: Install Make
-        run: |
-          sudo apt update
-          sudo apt install -y make
+      - name: Build
+        run: go build -v ./...
 
       # testing
       - name: Test
-        run: make test
+        run: go test -v ./...
 
-        #EC2 instance
+        
       - name: Deploy to AWS EC2
         uses: appleboy/ssh-action@master
         with:
