@@ -42,12 +42,18 @@ func (ur *userRepository) CheckUserExistsByPhone(phone string) (*domain.User, er
 	return &user, nil
 }
 func (ur *userRepository) UserSignUp(user models.UserSignUp) (models.UserDetailsResponse, error) {
-	var SignupDetail models.UserDetailsResponse
-	err := ur.DB.Raw(`INSERT INTO users(firstname,lastname,email,password,phone)VALUES(?,?,?,?,?)RETURNING id,firstname,lastname,email,password,phone`, user.Firstname, user.Lastname, user.Email, user.Password, user.Phone).Scan(&SignupDetail).Error
+	var signupDetail models.UserDetailsResponse
+	err := ur.DB.Raw(`
+		INSERT INTO users(firstname, lastname, email, password, phone)
+		VALUES(?, ?, ?, ?, ?)
+		RETURNING id, firstname, lastname, email, phone
+	`, user.Firstname, user.Lastname, user.Email, user.Password, user.Phone).
+		Scan(&signupDetail).Error
+
 	if err != nil {
-		return models.UserDetailsResponse{}, errors.New("email should be unique")
+		return models.UserDetailsResponse{}, err
 	}
-	return SignupDetail, nil
+	return signupDetail, nil
 }
 func (ur *userRepository) FindUserByEmail(user models.LoginDetail) (models.UserLoginResponse, error) {
 	var userDetails models.UserLoginResponse

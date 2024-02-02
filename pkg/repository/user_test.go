@@ -3,7 +3,6 @@ package repository
 import (
 	"Zhooze/pkg/utils/models"
 	"errors"
-	"fmt"
 	"reflect"
 	"testing"
 
@@ -13,70 +12,6 @@ import (
 	"gorm.io/gorm"
 )
 
-func TestUserSignUp(t *testing.T) {
-	type args struct {
-		input models.UserSignUp
-	}
-	tests := []struct {
-		name       string
-		args       args
-		beforeTest func(mockSQL sqlmock.Sqlmock)
-		want       models.UserDetailsResponse
-		wantErr    error
-	}{
-		{
-			name: "success signup user",
-			args: args{
-				input: models.UserSignUp{Firstname: "Akhil", Lastname: "c", Email: "zhooze9550@gmail.com", Password: "12345", Phone: "+917565748990"},
-			},
-			beforeTest: func(mockSQL sqlmock.Sqlmock) {
-				expectedQuery := `INSERT INTO users\(firstname,lastname,email,password,phone\)VALUES\(\$1,\$2,\$3,\$4,\$5\)RETURNING id,firstname,lastname,email,password,phone`
-				mockSQL.ExpectQuery(expectedQuery).
-					WithArgs("Akhil", "c", "zhooze9550@gmail.com", "12345", "+917565748990").
-					WillReturnRows(sqlmock.NewRows([]string{"id", "firstname", "lastname", "email", "phone"}).
-						AddRow(1, "Akhil", "c", "zhooze9550@gmail.com", "+917565748990"))
-			},
-			want: models.UserDetailsResponse{
-				Id:        1,
-				Firstname: "Akhil",
-				Lastname:  "c",
-				Email:     "zhooze9550@gmail.com",
-				Phone:     "+917565748990",
-			},
-			wantErr: nil,
-		},
-		{
-			name: "error signup user",
-			args: args{
-				input: models.UserSignUp{Firstname: "", Lastname: "", Email: "", Password: "", Phone: ""},
-			},
-			beforeTest: func(mockSQL sqlmock.Sqlmock) {
-				expectedQuery := `INSERT INTO users\(firstname,lastname,email,password,phone\)VALUES\(\$1,\$2,\$3,\$4,\$5\)RETURNING id,firstname,lastname,email,password,phone`
-				mockSQL.ExpectQuery(expectedQuery).
-					WithArgs("", "", "", "", "").
-					WillReturnError(errors.New("email should be unique"))
-			},
-			want:    models.UserDetailsResponse{},
-			wantErr: errors.New("email should be unique"),
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			mockDB, mockSQL, _ := sqlmock.New()
-			defer mockDB.Close()
-			gormDB, _ := gorm.Open(postgres.New(postgres.Config{
-				Conn: mockDB,
-			}), &gorm.Config{})
-			tt.beforeTest(mockSQL)
-			u := NewUserRepository(gormDB)
-			got, err := u.UserSignUp(tt.args.input)
-			assert.Equal(t, tt.wantErr, err)
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("userRepo.UserSignUp() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
 func Test_GetUserDetails(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -121,11 +56,83 @@ func Test_GetUserDetails(t *testing.T) {
 			}), &gorm.Config{})
 			tt.stub(mockSQL)
 			u := NewUserRepository(gormDB)
-			fmt.Println("args", tt.args)
+
 			result, err := u.UserDetails(tt.args)
-			fmt.Println("res:", result)
+
 			assert.Equal(t, tt.want, result)
 			assert.Equal(t, tt.wantErr, err)
+		})
+	}
+}
+
+func TestUserSignUp(t *testing.T) {
+	type args struct {
+		input models.UserSignUp
+	}
+	tests := []struct {
+		name       string
+		args       args
+		beforeTest func(mockSQL sqlmock.Sqlmock)
+		want       models.UserDetailsResponse
+		wantErr    error
+	}{
+		{
+			name: "success signup user",
+			args: args{
+				input: models.UserSignUp{
+					Firstname: "Akhil",
+					Lastname:  "c",
+					Email:     "zhooze9550@gmail.com",
+					Password:  "12345",
+					Phone:     "+917565748990",
+				},
+			},
+			beforeTest: func(mockSQL sqlmock.Sqlmock) {
+				expectedQuery := `INSERT INTO users\(firstname, lastname, email, password, phone\) VALUES\(\$1, \$2, \$3, \$4, \$5\) RETURNING id, firstname, lastname, email, phone`
+				mockSQL.ExpectQuery(expectedQuery).
+					WithArgs("Akhil", "c", "zhooze9550@gmail.com", "12345", "+917565748990").
+					WillReturnRows(sqlmock.NewRows([]string{"id", "firstname", "lastname", "email", "phone"}).
+						AddRow(1, "Akhil", "c", "zhooze9550@gmail.com", "+917565748990"))
+			},
+			want: models.UserDetailsResponse{
+				Id:        1,
+				Firstname: "Akhil",
+				Lastname:  "c",
+				Email:     "zhooze9550@gmail.com",
+				Phone:     "+917565748990",
+			},
+			wantErr: nil,
+		},
+		{
+			name: "error signup user",
+			args: args{
+				input: models.UserSignUp{},
+			},
+			beforeTest: func(mockSQL sqlmock.Sqlmock) {
+				expectedQuery := `INSERT INTO users\(firstname, lastname, email, password, phone\) VALUES\(\$1, \$2, \$3, \$4, \$5\) RETURNING id, firstname, lastname, email, phone`
+				mockSQL.ExpectQuery(expectedQuery).
+					WithArgs("", "", "", "", "").
+					WillReturnError(errors.New("email should be unique"))
+			},
+
+			want:    models.UserDetailsResponse{},
+			wantErr: errors.New("email should be unique"),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockDB, mockSQL, _ := sqlmock.New()
+			defer mockDB.Close()
+			gormDB, _ := gorm.Open(postgres.New(postgres.Config{
+				Conn: mockDB,
+			}), &gorm.Config{})
+			tt.beforeTest(mockSQL)
+			u := NewUserRepository(gormDB)
+			got, err := u.UserSignUp(tt.args.input)
+			assert.Equal(t, tt.wantErr, err)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("userRepo.UserSignUp() = %v, want %v", got, tt.want)
+			}
 		})
 	}
 }
@@ -148,7 +155,7 @@ func Test_FindUserByEmail(t *testing.T) {
 				expectedQuery := `^SELECT \* FROM users(.+)$`
 				mockSQL.ExpectQuery(expectedQuery).WithArgs("akhilc567@gmail.com").
 					WillReturnRows(sqlmock.NewRows([]string{"id", "user_id", "firstname", "lastname", "email", "phone", "password"}).
-						AddRow(1, 1, "Akhil", "c", "akhilc567@gmail.com", "6282246077", "4321"))
+						AddRow(1, 1, "Akhil", "c", "akhilc567@gmail.com", "+916282246077", "4321"))
 			},
 
 			want: models.UserLoginResponse{
@@ -157,7 +164,7 @@ func Test_FindUserByEmail(t *testing.T) {
 				Firstname: "Akhil",
 				Lastname:  "c",
 				Email:     "akhilc567@gmail.com",
-				Phone:     "6282246077",
+				Phone:     "+916282246077",
 				Password:  "4321",
 			},
 			wantErr: nil,
@@ -214,28 +221,23 @@ func Test_FindIdFromPhone(t *testing.T) {
 	}{
 		{
 			name: "success",
-			args: "9087678909",
+			args: "+919087678909",
 			stub: func(mockSQL sqlmock.Sqlmock) {
-				expectedQuery := `^SELECT id FROM users(.+)$`
+				expectedQuery := `SELECT id FROM users WHERE phone=\$1`
 				mockSQL.ExpectQuery(expectedQuery).
 					WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
-
 			},
 			want:    1,
 			wantErr: nil,
 		},
 		{
 			name: "error",
-			args: "9087678909",
+			args: "+919087678909",
 			stub: func(mockSQL sqlmock.Sqlmock) {
-
-				expectedQuery := `^SELECT id FROM users(.+)$`
-
+				expectedQuery := `SELECT id FROM users WHERE phone=\$1`
 				mockSQL.ExpectQuery(expectedQuery).
 					WillReturnError(errors.New("error"))
-
 			},
-
 			want:    0,
 			wantErr: errors.New("error"),
 		},
