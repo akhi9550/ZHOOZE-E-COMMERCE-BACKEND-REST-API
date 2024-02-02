@@ -20,7 +20,7 @@ import (
 func Test_UserSignup(t *testing.T) {
 	testCase := map[string]struct {
 		input         models.UserSignUp
-		buildStub     func(useCaseMock *mockUseCase.MockUserUseCase, signupData models.UserSignUp)
+		buildStub     func(useCaseMock mockUseCase.MockUserUseCase, signupData models.UserSignUp)
 		checkResponse func(t *testing.T, responseRecorder *httptest.ResponseRecorder)
 	}{
 		"Valid Signup": {
@@ -32,7 +32,7 @@ func Test_UserSignup(t *testing.T) {
 				Phone:        "+919087675645",
 				ReferralCode: "659823",
 			},
-			buildStub: func(useCaseMock *mockUseCase.MockUserUseCase, signupData models.UserSignUp) {
+			buildStub: func(useCaseMock mockUseCase.MockUserUseCase, signupData models.UserSignUp) {
 				err := validator.New().Struct(signupData)
 				if err != nil {
 					fmt.Println("validation failed")
@@ -62,7 +62,7 @@ func Test_UserSignup(t *testing.T) {
 				Phone:        "+919087675645",
 				ReferralCode: "659823",
 			},
-			buildStub: func(useCaseMock *mockUseCase.MockUserUseCase, signupData models.UserSignUp) {
+			buildStub: func(useCaseMock mockUseCase.MockUserUseCase, signupData models.UserSignUp) {
 				// copying signupData to domain.user for pass to Mock usecase
 				err := validator.New().Struct(signupData)
 				if err != nil {
@@ -83,7 +83,7 @@ func Test_UserSignup(t *testing.T) {
 			t.Parallel()
 			ctrl := gomock.NewController(t)
 			mockUseCase := mockUseCase.NewMockUserUseCase(ctrl)
-			test.buildStub(mockUseCase, test.input)
+			test.buildStub(*mockUseCase, test.input)
 			userHandler := NewUserHandler(mockUseCase)
 
 			server := gin.Default()
