@@ -21,9 +21,9 @@ func Test_AddAddress(t *testing.T) {
 	userUseCase := NewUserUseCase(userRepo, orderRepo)
 
 	testData := map[string]struct {
-		input         models.AddressInfo
-		StubDetails   func(*mockRepository.MockUserRepository, *mockRepository.MockOrderRepository, models.AddressInfo)
-		expectedError error
+		input   models.AddressInfo
+		stub    func(*mockRepository.MockUserRepository, *mockRepository.MockOrderRepository, models.AddressInfo)
+		wantErr error
 	}{
 		"success": {
 			input: models.AddressInfo{
@@ -34,10 +34,10 @@ func Test_AddAddress(t *testing.T) {
 				State:     "kerala",
 				Pin:       "688541",
 			},
-			StubDetails: func(userRepo *mockRepository.MockUserRepository, orderRepo *mockRepository.MockOrderRepository, data models.AddressInfo) {
+			stub: func(userRepo *mockRepository.MockUserRepository, orderRepo *mockRepository.MockOrderRepository, data models.AddressInfo) {
 				userRepo.EXPECT().AddAddress(1, data).Return(nil).Times(1)
 			},
-			expectedError: nil,
+			wantErr: nil,
 		},
 		"failure": {
 			input: models.AddressInfo{
@@ -48,18 +48,52 @@ func Test_AddAddress(t *testing.T) {
 				State:     "kerala",
 				Pin:       "688541",
 			},
-			StubDetails: func(userRepo *mockRepository.MockUserRepository, orderRepo *mockRepository.MockOrderRepository, data models.AddressInfo) {
+			stub: func(userRepo *mockRepository.MockUserRepository, orderRepo *mockRepository.MockOrderRepository, data models.AddressInfo) {
 				userRepo.EXPECT().AddAddress(1, data).Return(errors.New("could not add the address")).Times(1)
 			},
-			expectedError: errors.New("could not add the address"),
+			wantErr: errors.New("could not add the address"),
 		},
 	}
 
 	for testName, test := range testData {
 		t.Run(testName, func(t *testing.T) {
-			test.StubDetails(userRepo, orderRepo, test.input)
+			test.stub(userRepo, orderRepo, test.input)
 			err := userUseCase.AddAddress(1, test.input)
-			assert.Equal(t, test.expectedError, err)
+			assert.Equal(t, test.wantErr, err)
+		})
+	}
+}
+func Test_GetAllAddress(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	userRepo := mockRepository.NewMockUserRepository(ctrl)
+	orderRepo := mockRepository.NewMockOrderRepository(ctrl)
+	userUseCase := NewUserUseCase(userRepo, orderRepo)
+	testData := map[string]struct {
+		input   int
+		stub    func(*mockRepository.MockUserRepository, *mockRepository.MockOrderRepository, int)
+		wantErr error
+	}{
+		"sucess": {
+			input: 1,
+			stub: func(mur *mockRepository.MockUserRepository, mor *mockRepository.MockOrderRepository, data int) {
+				userRepo.EXPECT().GetAllAddres(data).Return(models.AddressInfoResponse{}).Times(1)
+			},
+			wantErr: nil,
+		},
+		"failed": {
+			input: 1,
+			stub: func(mur *mockRepository.MockUserRepository, mor *mockRepository.MockOrderRepository, data int) {
+				userRepo.EXPECT().GetAllAddres(data).Return(errors.New("error")).Times(1)
+			},
+			wantErr: errors.New("couldn't retrieve"),
+		},
+	}
+	for testName,test:=range testData{
+		t.Run(testName,func(t *testing.T) {
+			test.stub(userRepo,orderRepo,test.input)
+			err:=userUseCase.GetAllAddres(test.input)
+			assert.Equal(t,test.wantErr,err)
 		})
 	}
 }

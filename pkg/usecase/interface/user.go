@@ -7,6 +7,7 @@ type UserUseCase interface {
 	UsersLogin(user models.LoginDetail) (*models.TokenUser, error)
 	AddAddress(userID int, address models.AddressInfo) error
 	GetAllAddress(userId int) ([]models.AddressInfoResponse, error)
+	GetAllAddres(userId int) (models.AddressInfoResponse, error)
 	UserDetails(userID int) (models.UsersProfileDetails, error)
 	UpdateUserDetails(userDetails models.UsersProfileDetails, userID int) (models.UsersProfileDetails, error)
 	UpdateAddress(addressDetails models.AddressInfo, addressID, userID int) (models.AddressInfoResponse, error)
