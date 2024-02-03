@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	mockRepository "Zhooze/pkg/mock/mockRepository"
+	mockRepository "Zhooze/pkg/repository/mock/mockRepository"
 	"Zhooze/pkg/utils/models"
 	"errors"
 	"testing"

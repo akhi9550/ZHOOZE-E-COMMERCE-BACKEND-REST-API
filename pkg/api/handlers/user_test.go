@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"Zhooze/pkg/mock/mockUseCase"
+	"Zhooze/pkg/usecase/mock"
 	"Zhooze/pkg/utils/models"
 	"bytes"
 	"encoding/json"
@@ -20,7 +20,7 @@ import (
 func Test_UserSignup(t *testing.T) {
 	testCase := map[string]struct {
 		input         models.UserSignUp
-		buildStub     func(useCaseMock *mockUseCase.MockUserUseCase, signupData models.UserSignUp)
+		buildStub     func(useCaseMock *mock.MockUserUseCase, signupData models.UserSignUp)
 		checkResponse func(t *testing.T, responseRecorder *httptest.ResponseRecorder)
 	}{
 		"Valid Signup": {
@@ -32,7 +32,7 @@ func Test_UserSignup(t *testing.T) {
 				Phone:        "+919087675645",
 				ReferralCode: "659823",
 			},
-			buildStub: func(useCaseMock *mockUseCase.MockUserUseCase, signupData models.UserSignUp) {
+			buildStub: func(useCaseMock *mock.MockUserUseCase, signupData models.UserSignUp) {
 				err := validator.New().Struct(signupData)
 				if err != nil {
 					fmt.Println("validation failed")
@@ -62,7 +62,7 @@ func Test_UserSignup(t *testing.T) {
 				Phone:        "+919087675645",
 				ReferralCode: "659823",
 			},
-			buildStub: func(useCaseMock *mockUseCase.MockUserUseCase, signupData models.UserSignUp) {
+			buildStub: func(useCaseMock *mock.MockUserUseCase, signupData models.UserSignUp) {
 				// copying signupData to domain.user for pass to Mock usecase
 				err := validator.New().Struct(signupData)
 				if err != nil {
@@ -82,7 +82,7 @@ func Test_UserSignup(t *testing.T) {
 		t.Run(testName, func(t *testing.T) {
 			t.Parallel()
 			ctrl := gomock.NewController(t)
-			mockUseCase := mockUseCase.NewMockUserUseCase(ctrl)
+			mockUseCase := mock.NewMockUserUseCase(ctrl)
 			test.buildStub(mockUseCase, test.input)
 			userHandler := NewUserHandler(mockUseCase)
 
@@ -107,7 +107,7 @@ func Test_UserSignup(t *testing.T) {
 func Test_LoginHandler(t *testing.T) {
 	testCase := map[string]struct {
 		input         models.LoginDetail
-		buildStub     func(useCaseMock *mockUseCase.MockUserUseCase, login models.LoginDetail)
+		buildStub     func(useCaseMock *mock.MockUserUseCase, login models.LoginDetail)
 		checkResponse func(t *testing.T, responseRecorder *httptest.ResponseRecorder)
 	}{
 		"Success": {
@@ -115,7 +115,7 @@ func Test_LoginHandler(t *testing.T) {
 				Email:    "akhilc23@gmail.com",
 				Password: "898989",
 			},
-			buildStub: func(useCaseMock *mockUseCase.MockUserUseCase, login models.LoginDetail) {
+			buildStub: func(useCaseMock *mock.MockUserUseCase, login models.LoginDetail) {
 				err := validator.New().Struct(login)
 				if err != nil {
 					fmt.Println("validation failed")
@@ -143,7 +143,7 @@ func Test_LoginHandler(t *testing.T) {
 				Email:    "akhilc23@gmail.com",
 				Password: "no password",
 			},
-			buildStub: func(useCaseMock *mockUseCase.MockUserUseCase, login models.LoginDetail) {
+			buildStub: func(useCaseMock *mock.MockUserUseCase, login models.LoginDetail) {
 				err := validator.New().Struct(login)
 				if err != nil {
 					fmt.Println("validation failed")
@@ -160,7 +160,7 @@ func Test_LoginHandler(t *testing.T) {
 		t.Run(testName, func(t *testing.T) {
 			t.Parallel()
 			ctrl := gomock.NewController(t)
-			mockUseCase := mockUseCase.NewMockUserUseCase(ctrl)
+			mockUseCase := mock.NewMockUserUseCase(ctrl)
 			test.buildStub(mockUseCase, test.input)
 			UserHandler := NewUserHandler(mockUseCase)
 			server := gin.Default()
