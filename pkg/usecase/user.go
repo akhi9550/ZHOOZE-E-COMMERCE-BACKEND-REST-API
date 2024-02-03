@@ -147,7 +147,7 @@ func (ur *userUseCase) GetAllAddress(userId int) ([]models.AddressInfoResponse, 
 func (ur *userUseCase) GetAllAddres(userId int) (models.AddressInfoResponse, error) {
 	addressInfo, err := ur.userRepository.GetAllAddres(userId)
 	if err != nil {
-		return models.AddressInfoResponse{}, err
+		return models.AddressInfoResponse{}, errors.New("error")
 	}
 	return addressInfo, nil
 

@@ -119,6 +119,21 @@ func (mr *MockUserUseCaseMockRecorder) ForgotPasswordVerifyAndChange(model inter
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ForgotPasswordVerifyAndChange", reflect.TypeOf((*MockUserUseCase)(nil).ForgotPasswordVerifyAndChange), model)
 }
 
+// GetAllAddres mocks base method.
+func (m *MockUserUseCase) GetAllAddres(userId int) (models.AddressInfoResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAllAddres", userId)
+	ret0, _ := ret[0].(models.AddressInfoResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAllAddres indicates an expected call of GetAllAddres.
+func (mr *MockUserUseCaseMockRecorder) GetAllAddres(userId interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllAddres", reflect.TypeOf((*MockUserUseCase)(nil).GetAllAddres), userId)
+}
+
 // GetAllAddress mocks base method.
 func (m *MockUserUseCase) GetAllAddress(userId int) ([]models.AddressInfoResponse, error) {
 	m.ctrl.T.Helper()

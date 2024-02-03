@@ -66,34 +66,39 @@ func Test_AddAddress(t *testing.T) {
 func Test_GetAllAddress(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	userRepo := mockRepository.NewMockUserRepository(ctrl)
 	orderRepo := mockRepository.NewMockOrderRepository(ctrl)
 	userUseCase := NewUserUseCase(userRepo, orderRepo)
+
 	testData := map[string]struct {
 		input   int
 		stub    func(*mockRepository.MockUserRepository, *mockRepository.MockOrderRepository, int)
+		want    models.AddressInfoResponse
 		wantErr error
 	}{
-		"sucess": {
+		"success": {
 			input: 1,
-			stub: func(mur *mockRepository.MockUserRepository, mor *mockRepository.MockOrderRepository, data int) {
-				userRepo.EXPECT().GetAllAddres(data).Return(models.AddressInfoResponse{}).Times(1)
+			stub: func(userRepo *mockRepository.MockUserRepository, orderRepo *mockRepository.MockOrderRepository, data int) {
+				userRepo.EXPECT().GetAllAddres(data).Times(1).Return(models.AddressInfoResponse{}, nil)
 			},
+			want:    models.AddressInfoResponse{},
 			wantErr: nil,
 		},
 		"failed": {
 			input: 1,
-			stub: func(mur *mockRepository.MockUserRepository, mor *mockRepository.MockOrderRepository, data int) {
-				userRepo.EXPECT().GetAllAddres(data).Return(errors.New("error")).Times(1)
+			stub: func(userRepo *mockRepository.MockUserRepository, orderRepo *mockRepository.MockOrderRepository, data int) {
+				userRepo.EXPECT().GetAllAddres(data).Times(1).Return(models.AddressInfoResponse{}, errors.New("error"))
 			},
-			wantErr: errors.New("couldn't retrieve"),
+			want:    models.AddressInfoResponse{},
+			wantErr: errors.New("error"),
 		},
 	}
-	for testName,test:=range testData{
-		t.Run(testName,func(t *testing.T) {
-			test.stub(userRepo,orderRepo,test.input)
-			err:=userUseCase.GetAllAddres(test.input)
-			assert.Equal(t,test.wantErr,err)
-		})
+
+	for _, test := range testData {
+		test.stub(userRepo, orderRepo, test.input)
+		result, err := userUseCase.GetAllAddres(test.input)
+		assert.Equal(t, test.want, result)
+		assert.Equal(t, test.wantErr, err)
 	}
 }

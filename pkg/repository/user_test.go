@@ -261,3 +261,58 @@ func Test_FindIdFromPhone(t *testing.T) {
 		})
 	}
 }
+func Test_GetAllAddress(t *testing.T) {
+	testCase := []struct {
+		name    string
+		args    int
+		stub    func(mockSQL sqlmock.Sqlmock)
+		want    models.AddressInfoResponse
+		wantErr error
+	}{
+		{
+			name: "Success",
+			args: 1,
+			stub: func(mockSQL sqlmock.Sqlmock) {
+				expectedQuery := `SELECT \* FROM addresses WHERE user_id = \$1`
+				mockSQL.ExpectQuery(expectedQuery).WithArgs(1).
+					WillReturnRows(sqlmock.NewRows([]string{"id", "name", "house_name", "street", "city", "state", "pin"}).
+						AddRow(1, "akhil", "chekkiyil house", "cheleri", "kannur", "kerala", "670604"))
+			},
+			want: models.AddressInfoResponse{
+				ID:        1,
+				Name:      "akhil",
+				HouseName: "chekkiyil house",
+				Street:    "cheleri",
+				City:      "kannur",
+				State:     "kerala",
+				Pin:       "670604",
+			},
+			wantErr: nil,
+		},
+		{
+			name: "failed",
+			args: 1,
+			stub: func(mockSQL sqlmock.Sqlmock) {
+				expectedQuery := `SELECT \* FROM addresses WHERE user_id = \$1`
+				mockSQL.ExpectQuery(expectedQuery).WithArgs(1).
+					WillReturnError(errors.New("error"))
+			},
+			want:    models.AddressInfoResponse{},
+			wantErr: errors.New("error"),
+		},
+	}
+	for _, tt := range testCase {
+		t.Run(tt.name, func(t *testing.T) {
+			mockDB, mockSQL, _ := sqlmock.New()
+			defer mockDB.Close()
+			gormDB, _ := gorm.Open(postgres.New(postgres.Config{
+				Conn: mockDB,
+			}), &gorm.Config{})
+			tt.stub(mockSQL)
+			u := NewUserRepository(gormDB)
+			result, err := u.GetAllAddres(tt.args)
+			assert.Equal(t, tt.want, result)
+			assert.Equal(t, tt.wantErr, err)
+		})
+	}
+}
