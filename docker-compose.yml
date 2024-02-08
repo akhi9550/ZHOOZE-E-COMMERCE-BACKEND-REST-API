@@ -1,0 +1,38 @@
+version: "4.27.1"
+services:
+  postgres:
+    image: postgres
+    restart: always
+    environment:
+       POSTGRES_USER: postgres
+       POSTGRES_PASSWORD: satheesan
+       POSTGRES_DB: zhooze
+    networks:
+      - mydb
+    volumes:
+      - database-postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  zhoozego:
+    image: my-go-app
+    restart: on-failure
+    environment:
+      DB_HOST: "postgres"
+      DB_NAME: "zhooze"
+      DB_USER: "postgres"
+      DB_PORT: "5432"
+      DB_PASSWORD: "satheesan"
+    depends_on:
+      - postgres
+    networks:
+      - mydb
+    ports:
+      - "3000:3000"
+
+volumes:
+  database-postgres:
+
+networks:
+  mydb:
+    driver: bridge
