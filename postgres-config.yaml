@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+data:
+  postgres-password: satheesan
+  postgres-host: postgres-service
+  postgres-db: zhooze
+  postgres-user: postgres
+  postgres-port: "5432"
