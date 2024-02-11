@@ -59,7 +59,7 @@ func (of *OfferHandler) AddProdcutOffer(c *gin.Context) {
 
 }
 
-// @Summary Add  Product Offer
+// @Summary Get  Product Offer
 // @Description Add a new Offer for a product by specifying a limit
 // @Tags Admin Offer Management
 // @Accept json
@@ -82,7 +82,7 @@ func (of *OfferHandler) GetProductOffer(c *gin.Context) {
 
 }
 
-// @Summary Add  Product Offer
+// @Summary Expiry  Product Offer
 // @Description Add a new Offer for a product by specifying a limit
 // @Tags Admin Offer Management
 // @Accept json
@@ -149,7 +149,7 @@ func (of *OfferHandler) AddCategoryOffer(c *gin.Context) {
 
 }
 
-// @Summary Add  Category Offer
+// @Summary Get  Category Offer
 // @Description Add a new Offer for a category by specifying a limit
 // @Tags Admin Offer Management
 // @Accept json
@@ -172,7 +172,7 @@ func (of *OfferHandler) GetCategoryOffer(c *gin.Context) {
 
 }
 
-// @Summary Add  Category Offer
+// @Summary Expirey  Category Offer
 // @Description Add a new Offer for a category by specifying a limit
 // @Tags Admin Offer Management
 // @Accept json

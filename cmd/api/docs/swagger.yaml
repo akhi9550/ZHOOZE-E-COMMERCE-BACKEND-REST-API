@@ -170,6 +170,11 @@ definitions:
       stock:
         type: integer
     type: object
+  models.SearchItems:
+    properties:
+      product_name:
+        type: string
+    type: object
   models.SetNewName:
     properties:
       current:
@@ -227,11 +232,7 @@ definitions:
         type: integer
     type: object
 info:
-  contact:
-    name: API Support
-  description: Zhooze is an E-commerce platform to purchase and sell shoes
-  title: Go + Gin Zhooze E-Commerce API
-  version: 1.0.0
+  contact: {}
 paths:
   /admin/adminlogin:
     post:
@@ -481,7 +482,7 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - Bearer: []
-      summary: Add  Category Offer
+      summary: Expirey  Category Offer
       tags:
       - Admin Offer Management
     get:
@@ -501,7 +502,7 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - Bearer: []
-      summary: Add  Category Offer
+      summary: Get  Category Offer
       tags:
       - Admin Offer Management
     post:
@@ -555,7 +556,7 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - Bearer: []
-      summary: Add  Product Offer
+      summary: Expiry  Product Offer
       tags:
       - Admin Offer Management
     get:
@@ -575,7 +576,7 @@ paths:
             $ref: '#/definitions/response.Response'
       security:
       - Bearer: []
-      summary: Add  Product Offer
+      summary: Get  Product Offer
       tags:
       - Admin Offer Management
     post:
@@ -873,6 +874,34 @@ paths:
       summary: Update Products quantity
       tags:
       - Admin Product Management
+  /admin/products/search:
+    get:
+      consumes:
+      - application/json
+      description: Search for a product
+      parameters:
+      - description: Product details
+        in: body
+        name: prefix
+        required: true
+        schema:
+          $ref: '#/definitions/models.SearchItems'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: Get Products Details
+      tags:
+      - Admin Product Management
   /admin/products/upload-image:
     post:
       consumes:
@@ -886,7 +915,7 @@ paths:
         type: integer
       - description: Image file to upload
         in: formData
-        name: file
+        name: files
         required: true
         type: file
       produces:
@@ -1515,11 +1544,38 @@ paths:
       - application/json
       description: Add products to carts  for the purchase
       parameters:
-      - description: address id
+      - description: order id
         in: query
         name: order_id
         required: true
         type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: Checkout section
+      tags:
+      - User Order Management
+  /user/order/print:
+    get:
+      consumes:
+      - application/json
+      description: Print Purchase Invoice
+      parameters:
+      - description: order_id
+        in: query
+        name: order_id
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -1797,6 +1853,48 @@ paths:
       summary: Verify OTP
       tags:
       - User OTP Login
+  /user/wallet:
+    get:
+      consumes:
+      - application/json
+      description: Wallet TotalPrice from User Profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: Wallet Details
+      tags:
+      - Wallet
+  /user/wallet/history:
+    get:
+      consumes:
+      - application/json
+      description: Wallet Details from User Profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - Bearer: []
+      summary: Wallet History Details
+      tags:
+      - Wallet
   /user/wishlist:
     delete:
       consumes:
@@ -1870,9 +1968,4 @@ paths:
       summary: Add to Wishlist
       tags:
       - WishList Management
-securityDefinitions:
-  Bearer:
-    in: header
-    name: Authorization
-    type: apiKey
 swagger: "2.0"

@@ -9,9 +9,7 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "contact": {
-            "name": "API Support"
-        },
+        "contact": {},
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -387,7 +385,7 @@ const docTemplate = `{
                 "tags": [
                     "Admin Offer Management"
                 ],
-                "summary": "Add  Category Offer",
+                "summary": "Get  Category Offer",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -462,7 +460,7 @@ const docTemplate = `{
                 "tags": [
                     "Admin Offer Management"
                 ],
-                "summary": "Add  Category Offer",
+                "summary": "Expirey  Category Offer",
                 "parameters": [
                     {
                         "type": "string",
@@ -505,7 +503,7 @@ const docTemplate = `{
                 "tags": [
                     "Admin Offer Management"
                 ],
-                "summary": "Add  Product Offer",
+                "summary": "Get  Product Offer",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -580,7 +578,7 @@ const docTemplate = `{
                 "tags": [
                     "Admin Offer Management"
                 ],
-                "summary": "Add  Product Offer",
+                "summary": "Expiry  Product Offer",
                 "parameters": [
                     {
                         "type": "string",
@@ -1033,6 +1031,51 @@ const docTemplate = `{
                 }
             }
         },
+        "/admin/products/search": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Search for a product",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin Product Management"
+                ],
+                "summary": "Get Products Details",
+                "parameters": [
+                    {
+                        "description": "Product details",
+                        "name": "prefix",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SearchItems"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/products/upload-image": {
             "post": {
                 "security": [
@@ -1062,7 +1105,7 @@ const docTemplate = `{
                     {
                         "type": "file",
                         "description": "Image file to upload",
-                        "name": "file",
+                        "name": "files",
                         "in": "formData",
                         "required": true
                     }
@@ -2064,7 +2107,50 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "address id",
+                        "description": "order id",
+                        "name": "order_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/order/print": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Print Purchase Invoice",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Order Management"
+                ],
+                "summary": "Checkout section",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "order_id",
                         "name": "order_id",
                         "in": "query",
                         "required": true
@@ -2492,6 +2578,74 @@ const docTemplate = `{
                 }
             }
         },
+        "/user/wallet": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Wallet TotalPrice from User Profile",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Wallet"
+                ],
+                "summary": "Wallet Details",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/wallet/history": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Wallet Details from User Profile",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Wallet"
+                ],
+                "summary": "Wallet History Details",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/user/wishlist": {
             "get": {
                 "security": [
@@ -2863,6 +3017,14 @@ const docTemplate = `{
                 }
             }
         },
+        "models.SearchItems": {
+            "type": "object",
+            "properties": {
+                "product_name": {
+                    "type": "string"
+                }
+            }
+        },
         "models.SetNewName": {
             "type": "object",
             "properties": {
@@ -2946,24 +3108,17 @@ const docTemplate = `{
                 }
             }
         }
-    },
-    "securityDefinitions": {
-        "Bearer": {
-            "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
-        }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0.0",
+	Version:          "",
 	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "Go + Gin Zhooze E-Commerce API",
-	Description:      "Zhooze is an E-commerce platform to purchase and sell shoes",
+	Title:            "",
+	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

@@ -3,4 +3,4 @@
 
 #Kubernetes secrets and config
 postgres-secret.yaml
-kubernetes-config.yaml
+postgres-config.yaml

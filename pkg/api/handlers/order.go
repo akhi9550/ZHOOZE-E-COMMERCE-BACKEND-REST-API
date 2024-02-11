@@ -238,7 +238,7 @@ func (or *OrderHandler) CheckOut(c *gin.Context) {
 // @Tags			User Order Management
 // @Accept			json
 // @Produce		    json
-// @Param    order_id    query    int    true    "address id"
+// @Param    order_id    query    int    true    "order id"
 // @Security		Bearer
 // @Success		200	{object}	response.Response{}
 // @Failure		500	{object}	response.Response{}

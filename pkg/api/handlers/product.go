@@ -240,7 +240,6 @@ func (pt *ProductHandler) UpdateProduct(c *gin.Context) {
 
 }
 
-
 // @Summary Add Product Image
 // @Description Add product Product from admin side
 // @Tags Admin Product Management
@@ -286,8 +285,6 @@ func (pt *ProductHandler) UploadImage(c *gin.Context) {
 	successRes := response.ClientResponse(http.StatusOK, "Successfully changed images", nil, nil)
 	c.JSON(http.StatusOK, successRes)
 }
-
-
 
 // @Summary Get Products Details to users
 // @Description Retrieve product images

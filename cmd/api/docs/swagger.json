@@ -1,12 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "Zhooze is an E-commerce platform to purchase and sell shoes",
-        "title": "Go + Gin Zhooze E-Commerce API",
-        "contact": {
-            "name": "API Support"
-        },
-        "version": "1.0.0"
+        "contact": {}
     },
     "paths": {
         "/admin/adminlogin": {
@@ -379,7 +374,7 @@
                 "tags": [
                     "Admin Offer Management"
                 ],
-                "summary": "Add  Category Offer",
+                "summary": "Get  Category Offer",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -454,7 +449,7 @@
                 "tags": [
                     "Admin Offer Management"
                 ],
-                "summary": "Add  Category Offer",
+                "summary": "Expirey  Category Offer",
                 "parameters": [
                     {
                         "type": "string",
@@ -497,7 +492,7 @@
                 "tags": [
                     "Admin Offer Management"
                 ],
-                "summary": "Add  Product Offer",
+                "summary": "Get  Product Offer",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -572,7 +567,7 @@
                 "tags": [
                     "Admin Offer Management"
                 ],
-                "summary": "Add  Product Offer",
+                "summary": "Expiry  Product Offer",
                 "parameters": [
                     {
                         "type": "string",
@@ -1025,6 +1020,51 @@
                 }
             }
         },
+        "/admin/products/search": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Search for a product",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin Product Management"
+                ],
+                "summary": "Get Products Details",
+                "parameters": [
+                    {
+                        "description": "Product details",
+                        "name": "prefix",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.SearchItems"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/admin/products/upload-image": {
             "post": {
                 "security": [
@@ -1054,7 +1094,7 @@
                     {
                         "type": "file",
                         "description": "Image file to upload",
-                        "name": "file",
+                        "name": "files",
                         "in": "formData",
                         "required": true
                     }
@@ -2056,7 +2096,50 @@
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "address id",
+                        "description": "order id",
+                        "name": "order_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/order/print": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Print Purchase Invoice",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Order Management"
+                ],
+                "summary": "Checkout section",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "order_id",
                         "name": "order_id",
                         "in": "query",
                         "required": true
@@ -2484,6 +2567,74 @@
                 }
             }
         },
+        "/user/wallet": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Wallet TotalPrice from User Profile",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Wallet"
+                ],
+                "summary": "Wallet Details",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/wallet/history": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Wallet Details from User Profile",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Wallet"
+                ],
+                "summary": "Wallet History Details",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/user/wishlist": {
             "get": {
                 "security": [
@@ -2855,6 +3006,14 @@
                 }
             }
         },
+        "models.SearchItems": {
+            "type": "object",
+            "properties": {
+                "product_name": {
+                    "type": "string"
+                }
+            }
+        },
         "models.SetNewName": {
             "type": "object",
             "properties": {
@@ -2937,13 +3096,6 @@
                     "type": "integer"
                 }
             }
-        }
-    },
-    "securityDefinitions": {
-        "Bearer": {
-            "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
         }
     }
 }
