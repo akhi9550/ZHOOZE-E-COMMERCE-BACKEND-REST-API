@@ -25,11 +25,7 @@ wire: ## Generate wire_gen.go
 	cd pkg/di && wire
 
 mock: ##make mock files using mockgen
-	mockgen -source pkg\repository\interface\user.go -destination pkg\mock\mockRepo\user_mock.go -package mockRepository
-	mockgen -source pkg\usecase\interface\user.go -destination pkg\mock\mockUseCase\user_mock.go -package mockUseCase   
+	mockgen -source pkg\repository\interface\user.go -destination pkg\repository\mock\user_mock.go -package mock
+	mockgen -source pkg\repository\interface\order.go -destination pkg\repository\mock\order_mock.go -package mock
+	mockgen -source pkg\usecase\interface\user.go -destination pkg\usecase\mock\user_mock.go -package mock
 
-lint: ## for linting go code
-	golangci-lint run ./...
-
-help: ## Display this help screen
-	@grep -h -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
