@@ -22,7 +22,7 @@ func NewAdminHandler(usecase services.AdminUseCase) *AdminHandler {
 }
 
 // @Summary		Admin Login
-// @Description	Login handler for jerseyhub admins
+// @Description	Login handler for Zhooze admins
 // @Tags			Admin
 // @Accept			json
 // @Produce		json

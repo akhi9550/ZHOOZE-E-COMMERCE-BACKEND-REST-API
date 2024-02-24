@@ -76,4 +76,3 @@ func PasswordHashing(password string) (string, error) {
 	hash := string(hashedPassword)
 	return hash, nil
 }
-
