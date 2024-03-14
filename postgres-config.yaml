@@ -3,8 +3,8 @@ kind: ConfigMap
 metadata:
   name: postgres-config
 data:
-  postgres-password: satheesan
+  postgres-password: ${DB_PASSWORD}
   postgres-host: postgres-service
-  postgres-db: zhooze
-  postgres-user: postgres
-  postgres-port: "5432"
+  postgres-db: ${DB_NAME}
+  postgres-user: ${DB_USER}
+  postgres-port: ${DB_PORT}

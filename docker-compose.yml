@@ -4,9 +4,9 @@ services:
     image: postgres
     restart: always
     environment:
-       POSTGRES_USER: postgres
-       POSTGRES_PASSWORD: satheesan
-       POSTGRES_DB: zhooze
+       POSTGRES_USER: ${DB_USER}
+       POSTGRES_PASSWORD: ${DB_PASSWORD}
+       POSTGRES_DB: ${DB_NAME}
     networks:
       - mydb
     volumes:
@@ -18,11 +18,11 @@ services:
     image: my-go-app
     restart: on-failure
     environment:
-      DB_HOST: "postgres"
-      DB_NAME: "zhooze"
-      DB_USER: "postgres"
-      DB_PORT: "5432"
-      DB_PASSWORD: "satheesan"
+      DB_HOST: ${DB_HOST}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PORT: ${DB_PORT}
+      DB_PASSWORD: ${DB_PASSWORD}
     depends_on:
       - postgres
     networks:
