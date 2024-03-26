@@ -5,14 +5,6 @@ run:  ##Run Code
 swag: ##Run Swagger
 	swag init -g cmd/api/main.go -o ./cmd/api/docs
 
-deps: ## Install dependencies
-	# go get $(go list -f '{{if not (or .Main .Indirect)}}{{.Path}}{{end}}' -m all)
-	go get -u -t -d -v ./...
-	go mod tidy
-	go mod vendor
-
-deps-cleancache: ## Clear cache in Go module
-	go clean -modcache
 
 test: ##test
 	go test ./... -cover
