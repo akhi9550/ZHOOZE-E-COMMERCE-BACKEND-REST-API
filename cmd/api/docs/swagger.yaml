@@ -238,7 +238,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Login handler for jerseyhub admins
+      description: Login handler for Zhooze admins
       parameters:
       - description: Admin login details
         in: body

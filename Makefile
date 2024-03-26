@@ -3,7 +3,7 @@ run:  ##Run Code
 
 
 swag: ##Run Swagger
-	swag init -g main.go -o ./cmd/api/docs
+	swag init -g cmd/api/main.go -o ./cmd/api/docs
 
 deps: ## Install dependencies
 	# go get $(go list -f '{{if not (or .Main .Indirect)}}{{.Path}}{{end}}' -m all)
