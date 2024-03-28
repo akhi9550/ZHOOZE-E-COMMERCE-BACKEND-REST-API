@@ -35,7 +35,7 @@ func (cy *CategoryHandler) GetCategory(c *gin.Context) {
 		errs := response.ClientResponse(http.StatusBadRequest, "Couldn't displayed categories", nil, err.Error())
 		c.JSON(http.StatusBadRequest, errs)
 	}
-	success := response.ClientResponse(http.StatusBadRequest, "Display All category", category, nil)
+	success := response.ClientResponse(http.StatusOK, "Display All category", category, nil)
 	c.JSON(http.StatusBadRequest, success)
 }
 
