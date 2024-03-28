@@ -11,15 +11,19 @@ import (
 	_ "github.com/swaggo/gin-swagger"
 )
 
+// @securityDefinitions.apikey Bearer
+// @in header
+// @name Authorization
+
 func main() {
 
 	// // swagger 2.0 Meta Information
 	docs.SwaggerInfo.Title = "Zhooze - E-commerce"
-	docs.SwaggerInfo.Description = "Zhooze is an E-commerce platform to purchasing and selling shoes"
+	docs.SwaggerInfo.Description = "Zhooze is an E-commerce platform to purchase and sell shoes"
 	docs.SwaggerInfo.Version = "1.0"
 	docs.SwaggerInfo.Host = "localhost:3000"
-	docs.SwaggerInfo.BasePath = "/"
-	docs.SwaggerInfo.Schemes = []string{"http","https"}
+	docs.SwaggerInfo.BasePath = ""
+	docs.SwaggerInfo.Schemes = []string{"http"}
 
 	config, configErr := config.LoadConfig()
 	if configErr != nil {
@@ -31,7 +35,6 @@ func main() {
 	server, diErr := di.InitializeAPI(config)
 
 	if diErr != nil {
-
 		log.Fatal("cannot start server: ", diErr)
 	} else {
 		server.Start(infoLog, errorLog)

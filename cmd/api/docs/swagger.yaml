@@ -1968,4 +1968,9 @@ paths:
       summary: Add to Wishlist
       tags:
       - WishList Management
+securityDefinitions:
+  Bearer:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"
