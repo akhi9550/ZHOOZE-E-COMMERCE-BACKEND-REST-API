@@ -565,7 +565,7 @@ func (o *orderRepository) GetItemsByOrderId(orderId int) ([]models.Invoice, erro
 	var items []models.Invoice
 
 	query := `
-	SELECT oi.id AS order_id, oi.name, oi.quantity, oi.total_price, o.id AS id, o.created_at, o.final_price, o.shipment_status, o.payment_status
+	SELECT oi.id AS order_id, oi.quantity, oi.total_price, o.id AS id, o.created_at, o.final_price, o.shipment_status, o.payment_status
 	FROM orders o
 	JOIN order_items oi ON o.id = oi.order_id
 	WHERE o.id = ?;

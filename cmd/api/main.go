@@ -21,9 +21,9 @@ func main() {
 	docs.SwaggerInfo.Title = "Zhooze - E-commerce"
 	docs.SwaggerInfo.Description = "Zhooze is an E-commerce platform to purchase and sell shoes"
 	docs.SwaggerInfo.Version = "1.0"
-	docs.SwaggerInfo.Host = "localhost:3000"
+	docs.SwaggerInfo.Host = "zhooze.zhooze.shop"
 	docs.SwaggerInfo.BasePath = ""
-	docs.SwaggerInfo.Schemes = []string{"http"}
+	docs.SwaggerInfo.Schemes = []string{"https"}
 
 	config, configErr := config.LoadConfig()
 	if configErr != nil {

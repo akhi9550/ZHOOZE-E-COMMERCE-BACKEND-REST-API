@@ -84,7 +84,6 @@
 
       function verifyPayment(res, orderid) {
         $.ajax({
-          //passes details as url params
           url: `/user/update_status?order_id=${orderid}&payment_id=${res.razorpay_payment_id}&razor_id=${res.razorpay_order_id}
       &signature=${res.razorpay_signature}`,
           method: "GET",

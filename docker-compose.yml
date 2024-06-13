@@ -14,8 +14,8 @@ services:
     ports:
       - "5432:5432"
 
-  zhoozego:
-    image: my-go-app
+  zhooze:
+    image: zhooze
     restart: on-failure
     environment:
       DB_HOST: ${DB_HOST}
@@ -28,7 +28,7 @@ services:
     networks:
       - mydb
     ports:
-      - "3000:3000"
+      - "3001:3000"
 
 volumes:
   database-postgres:

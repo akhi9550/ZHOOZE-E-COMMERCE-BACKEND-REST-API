@@ -40,7 +40,7 @@ func ConnectDatabase(confg config.Config) (*gorm.DB, error) {
 	db.AutoMigrate(&domain.Wallet{})
 	db.AutoMigrate(&domain.WalletHistory{})
 	CheckAndCreateAdmin(db)
-	return DB, err
+	return DB, nil
 }
 func CheckAndCreateAdmin(db *gorm.DB) {
 	var count int64
