@@ -28,7 +28,7 @@ services:
     networks:
       - mydb
     ports:
-      - "3001:3000"
+      - "3000:3000"
 
 volumes:
   database-postgres:
