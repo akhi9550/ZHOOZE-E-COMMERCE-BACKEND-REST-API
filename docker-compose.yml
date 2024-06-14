@@ -14,8 +14,8 @@ services:
     ports:
       - "5432:5432"
 
-  zhooze:
-    image: zhooze
+  zhoooze:
+    image: zhoooze
     restart: on-failure
     environment:
       DB_HOST: postgres
