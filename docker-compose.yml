@@ -16,6 +16,7 @@ services:
 
   zhooze:
     image: zhooze
+    build: ./Zhooze_Ecommerce_CleanArchitecture/
     restart: on-failure
     environment:
       DB_HOST: postgres
