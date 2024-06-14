@@ -15,7 +15,7 @@ services:
       - "5432:5432"
 
   zhoooze:
-    image: zhoooze
+    image: akhi9550/zhoooze
     restart: on-failure
     environment:
       DB_HOST: postgres
